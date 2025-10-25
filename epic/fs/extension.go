@@ -1,31 +1,14 @@
 package fs
 
-import "strings"
+import (
+	"path/filepath"
+	"strings"
+)
 
-func getExtension(name string) string {
-	parts := strings.Split(name, ".")
-	last := parts[len(parts)-1]
-
-	return last
+func HasExtension(name string, ext string) bool {
+	return strings.EqualFold(filepath.Ext(name), strings.ToLower(ext))
 }
 
-func IsSourceFile(name string) bool {
-	ext := getExtension(name)
-
-	return strings.ToLower(ext) == "c"
-}
-
-func IsHeaderFile(name string) bool {
-	ext := getExtension(name)
-
-	return strings.ToLower(ext) == "h"
-}
-
-func ReplaceExtension(name string, extension string) string {
-	parts := strings.Split(name, ".")
-	noExtension := parts[:len(parts)-1]
-
-	noExtension = append(noExtension, "o")
-
-	return strings.Join(noExtension, ".")
+func ReplaceExtension(name, ext string) string {
+	return strings.TrimSuffix(name, filepath.Ext(name)) + ext
 }

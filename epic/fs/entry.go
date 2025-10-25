@@ -6,56 +6,69 @@ import (
 	"path/filepath"
 )
 
-type DirEntry struct {
-	Name  string
-	Path  string
-	IsDir bool
+type FsEntry struct {
+	Name     string
+	Dir      string
+	FullPath string
+	RelPath  string
+	IsDir    bool
 }
 
-func ListDir(path string) []DirEntry {
+func rawToFsEntry(entry os.DirEntry, entryPath string, basePath string) FsEntry {
+	dir := filepath.Dir(entryPath)
+	name := entry.Name()
+	absDir := MustGetAbsPath(dir)
+	fullPath := filepath.Join(absDir, name)
+
+	relPath, err := filepath.Rel(MustGetAbsPath(basePath), fullPath)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return FsEntry{
+		Name:     name,
+		IsDir:    entry.IsDir(),
+		Dir:      filepath.Dir(fullPath),
+		RelPath:  relPath,
+		FullPath: fullPath,
+	}
+}
+
+func GetDirectories(path string) []FsEntry {
+	// Get all directories (no subdirectories) from path.
 	rawEntries, err := os.ReadDir(path)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	var entries []DirEntry
+	var entries []FsEntry
 
 	for _, entry := range rawEntries {
-		name := entry.Name()
+		if !entry.IsDir() {
+			continue
+		}
 
-		entries = append(entries, DirEntry{
-			Name:  name,
-			IsDir: entry.IsDir(),
-			Path:  MustGetAbsPath(filepath.Join(path, name)),
-		})
+		entryPath := filepath.Join(path, entry.Name())
+		entries = append(entries, rawToFsEntry(entry, entryPath, path))
 	}
 
 	return entries
 }
 
-func GetAllFileEntriesFlat(path string) []DirEntry {
-	/*
-		Convert all files from all subdirectories (recursively)
-		into a flat list of file entries.
-	*/
+func GetFilesByExtension(path string, ext string) []FsEntry {
+	// Get all files from path and all subdirectories by extension.
+	var files []FsEntry
 
-	var entries []DirEntry
-
-	err := filepath.WalkDir(path, func(path string, entry os.DirEntry, err error) error {
+	err := filepath.WalkDir(path, func(entryPath string, entry os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if entry.IsDir() {
+		if entry.IsDir() || !HasExtension(entry.Name(), ext) {
 			return nil
 		}
 
-		name := entry.Name()
-		entries = append(entries, DirEntry{
-			Name:  name,
-			Path:  MustGetAbsPath(path),
-			IsDir: false,
-		})
+		files = append(files, rawToFsEntry(entry, entryPath, path))
 
 		return nil
 	})
@@ -64,5 +77,31 @@ func GetAllFileEntriesFlat(path string) []DirEntry {
 		log.Fatalln(err)
 	}
 
-	return entries
+	return files
+}
+
+func CreateDirTree(path string) {
+	err := os.MkdirAll(filepath.Dir(path), 0755)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func MustCopyFile(src string, dst string) {
+	data, err := os.ReadFile(src)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = os.WriteFile(dst, data, 0644)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func MustWriteFile(path string, content string) {
+	err := os.WriteFile(path, []byte(content), 0644)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
