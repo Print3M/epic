@@ -1,55 +1,59 @@
 package cli
 
 import (
+	"epic/ctx"
 	"epic/fs"
 	"flag"
 	"fmt"
+	"log"
 	"os"
+	"path/filepath"
 )
 
-type CliFlags struct {
-	InputPath    string
-	OutputPath   string
-	CompilerPath string
-	LinkerPath   string
-	Modules      []string
-	NoPIC        bool
-	NoLoader     bool
-	NoStandalone bool
+func MustValidateProjectPath(projectPath string) {
+	if p := filepath.Join(projectPath, "core"); !fs.EntryExists(p) {
+		log.Fatalf("Invalid project structure. Path doesn't exist: %s", p)
+	}
+
+	if p := filepath.Join(projectPath, "core", "main.c"); !fs.EntryExists(p) {
+		log.Fatalf("Invalid project structure. Path doesn't exist: %s", p)
+	}
+
+	if p := filepath.Join(projectPath, "modules"); !fs.EntryExists(p) {
+		log.Fatalf("Invalid project structure. Path doesn't exist: %s", p)
+	}
 }
 
-func ParseCli() *CliFlags {
-	var flags CliFlags
+func InitCLI() {
+	flag.StringVar(&ctx.ProjectPath, "p", "", "")
+	flag.StringVar(&ctx.ProjectPath, "project", "", "")
 
-	flag.StringVar(&flags.InputPath, "i", "", "")
-	flag.StringVar(&flags.InputPath, "input", "", "")
+	flag.StringVar(&ctx.OutputPath, "o", "", "")
+	flag.StringVar(&ctx.OutputPath, "output", "", "")
 
-	flag.StringVar(&flags.OutputPath, "o", "", "")
-	flag.StringVar(&flags.OutputPath, "output", "", "")
+	flag.StringVar(&ctx.CompilerPath, "gcc", "", "")
+	flag.StringVar(&ctx.LinkerPath, "ld", "", "")
 
-	flag.StringVar(&flags.CompilerPath, "gcc", "", "")
-	flag.StringVar(&flags.LinkerPath, "ld", "", "")
-
-	flag.BoolVar(&flags.NoPIC, "no-pic", false, "")
-	flag.BoolVar(&flags.NoLoader, "no-loader", false, "")
-	flag.BoolVar(&flags.NoStandalone, "no-standalone", false, "")
+	flag.BoolVar(&ctx.NoPIC, "no-pic", false, "")
+	flag.BoolVar(&ctx.NoLoader, "no-loader", false, "")
+	flag.BoolVar(&ctx.NoStandalone, "no-standalone", false, "")
 
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage: Epic -i <path> -o <path> -p <path>\n")
+		fmt.Fprintf(os.Stderr, "Usage: epic -p <path> -o <path>\n")
 		fmt.Println()
 		fmt.Println("Usage:")
 		fmt.Println()
-		fmt.Printf("  %-26s %s\n", "-i, --input <path>", "Input directory (required)")
+		fmt.Printf("  %-26s %s\n", "-p, --project <path>", "Project directory (required)")
 		fmt.Printf("  %-26s %s\n", "-o, --output <path>", "Output directory (required)")
-		fmt.Printf("  %-26s %s\n", "--gcc <path>", "Path to GCC (MinGW) compiler")
-		fmt.Printf("  %-26s %s\n", "--ld <path>", "Path to LD (GNU) linker")
 		fmt.Printf("  %-26s %s\n", "--no-pic", "Disable PIC payload building")
 		fmt.Printf("  %-26s %s\n", "--no-loader", "Disable loader building")
 		fmt.Printf("  %-26s %s\n", "--no-standalone", "Disable standalone building")
+		fmt.Printf("  %-26s %s\n", "--ld <path>", "Path to LD (GNU) linker")
+		fmt.Printf("  %-26s %s\n", "--gcc <path>", "Path to GCC (MinGW) compiler")
 		fmt.Println()
 		fmt.Println("Example:")
 		fmt.Println()
-		fmt.Println("  DllShimmer -i version.dll -o ./project -x 'C:\\Windows\\System32\\version.dll' -m")
+		fmt.Println("  epic -p src/ -o output/")
 		fmt.Println()
 		fmt.Println("Created by Print3M (print3m.github.io)")
 		fmt.Println()
@@ -57,28 +61,26 @@ func ParseCli() *CliFlags {
 
 	flag.Parse()
 
-	if flags.InputPath == "" || flags.OutputPath == "" {
+	if ctx.ProjectPath == "" || ctx.OutputPath == "" {
 		flag.Usage()
 		os.Exit(1)
 	}
 
-	flags.InputPath = fs.MustGetAbsPath(flags.InputPath)
-	flags.OutputPath = fs.MustGetAbsPath(flags.OutputPath)
+	ctx.ProjectPath = fs.MustGetAbsPath(ctx.ProjectPath)
+	ctx.OutputPath = fs.MustGetAbsPath(ctx.OutputPath)
 
-	if flags.CompilerPath == "" {
-		flags.CompilerPath = "x86_64-w64-mingw32-gcc"
+	if ctx.CompilerPath == "" {
+		ctx.CompilerPath = "x86_64-w64-mingw32-gcc"
 	}
 
-	if flags.LinkerPath == "" {
-		flags.LinkerPath = "ld"
+	if ctx.LinkerPath == "" {
+		ctx.LinkerPath = "ld"
 	}
 
-	if flags.NoPIC && flags.NoLoader && flags.NoStandalone {
+	if ctx.NoPIC && ctx.NoLoader && ctx.NoStandalone {
 		fmt.Println("You've disabled everything. I can't offer you anything more...")
 		os.Exit(1)
 	}
 
-	// TODO: Check if input directory has a correct structure
-
-	return &flags
+	MustValidateProjectPath(ctx.ProjectPath)
 }

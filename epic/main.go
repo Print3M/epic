@@ -3,11 +3,12 @@ package main
 import (
 	"epic/builder"
 	"epic/cli"
+	"epic/ctx"
 	"fmt"
 )
 
 func main() {
-	flags := cli.ParseCli()
+	cli.InitCLI()
 
 	/*
 		TODO: There's no error when executed with wrong software
@@ -20,28 +21,30 @@ func main() {
 		}
 	*/
 
-	if !flags.NoPIC {
+	if !ctx.NoPIC {
 		// Compile PIC payload
 		fmt.Println()
-		builder.BuildPIC(flags, []string{"pwd"})
+		builder.BuildPIC([]string{"pwd"})
 	}
 
-	if !flags.NoLoader {
+	if !ctx.NoLoader {
 		// Compile loader
 		fmt.Println()
-		builder.BuildLoader(flags)
+		builder.BuildLoader()
 	}
 
-	if !flags.NoStandalone {
+	if !ctx.NoStandalone {
 		// Compile standalone
 		fmt.Println()
-		builder.BuildStandalone(flags)
+		builder.BuildStandalone()
 	}
 }
 
 /*
 	TODO:
 		- Add colors and loading bars in CLI
-		- Add global context
+		- Add fancy banner (like in DllShimmer)
+		- Add global context & Cobra CLI
+		- Add dynamic modules
 		- Refactor
 */

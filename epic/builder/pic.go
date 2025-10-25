@@ -2,7 +2,7 @@ package builder
 
 import (
 	_ "embed"
-	"epic/cli"
+	"epic/ctx"
 	"epic/fs"
 	"epic/shell"
 	"fmt"
@@ -13,11 +13,11 @@ import (
 //go:embed assets/linker.ld
 var linkerScriptContent string
 
-func BuildPIC(flags *cli.CliFlags, modules []string) {
-	buildCore(flags)
+func BuildPIC(modules []string) {
+	buildCore()
 	fmt.Println()
 
-	buildModules(flags)
+	buildModules()
 	fmt.Println()
 
 	fmt.Println("[*] Linking PIC payload...")
@@ -25,23 +25,23 @@ func BuildPIC(flags *cli.CliFlags, modules []string) {
 	var objectFiles []string
 
 	// Collect core object files
-	corePath := filepath.Join(flags.OutputPath, "objects/core")
+	corePath := filepath.Join(ctx.OutputPath, "objects/core")
 	for _, e := range fs.GetFilesByExtension(corePath, ".o") {
 		objectFiles = append(objectFiles, e.FullPath)
 	}
 
 	// Collect modules object files
 	for _, module := range modules {
-		modulePath := filepath.Join(flags.OutputPath, "objects/modules", module)
+		modulePath := filepath.Join(ctx.OutputPath, "objects/modules", module)
 
 		for _, e := range fs.GetFilesByExtension(modulePath, ".o") {
 			objectFiles = append(objectFiles, e.FullPath)
 		}
 	}
 
-	outputFile := filepath.Join(flags.OutputPath, "payload.bin")
+	outputFile := filepath.Join(ctx.OutputPath, "payload.bin")
 
-	linkerScriptFile := filepath.Join(flags.OutputPath, "assets", "linker.ld")
+	linkerScriptFile := filepath.Join(ctx.OutputPath, "assets", "linker.ld")
 	fs.CreateDirTree(linkerScriptFile)
 	fs.MustWriteFile(linkerScriptFile, linkerScriptContent)
 
@@ -52,7 +52,7 @@ func BuildPIC(flags *cli.CliFlags, modules []string) {
 
 	params = append(params, objectFiles...)
 
-	output := shell.MustExecuteProgram(flags.LinkerPath, params...)
+	output := shell.MustExecuteProgram(ctx.LinkerPath, params...)
 
 	if len(output) > 0 {
 		fmt.Println(output)
@@ -61,10 +61,10 @@ func BuildPIC(flags *cli.CliFlags, modules []string) {
 	fmt.Println("[+] PIC payload linked!")
 }
 
-func buildCore(flags *cli.CliFlags) {
+func buildCore() {
 	fmt.Println("[*] Building core...")
 
-	buildDirectory(flags, "core", 1)
+	buildDirectory("core", 1)
 
 	fmt.Println("[+] Core built!")
 }
@@ -94,15 +94,15 @@ func getModuleNames(modulesPath string) []Module {
 	return modules
 }
 
-func buildModules(flags *cli.CliFlags) {
+func buildModules() {
 	fmt.Println("[*] Building modules...")
 
-	modules := getModuleNames(filepath.Join(flags.InputPath, "modules"))
+	modules := getModuleNames(filepath.Join(ctx.ProjectPath, "modules"))
 
 	for _, module := range modules {
 		fmt.Println("\t[*] Building module:", module.Name)
 
-		buildDirectory(flags, filepath.Join("modules/", module.Name), 2)
+		buildDirectory(filepath.Join("modules/", module.Name), 2)
 
 		fmt.Println("\t[+] Module built:", module.Name)
 	}
@@ -110,12 +110,12 @@ func buildModules(flags *cli.CliFlags) {
 	fmt.Println("[+] Modules built!")
 }
 
-func buildDirectory(flags *cli.CliFlags, dir string, logIndent int) {
-	corePath := filepath.Join(flags.InputPath, dir)
+func buildDirectory(dir string, logIndent int) {
+	corePath := filepath.Join(ctx.ProjectPath, dir)
 
 	for _, source := range fs.GetFilesByExtension(corePath, ".c") {
 		outputRelPath := fs.ReplaceExtension(source.RelPath, ".o")
-		outputFullPath := filepath.Join(flags.OutputPath, "objects", dir, outputRelPath)
+		outputFullPath := filepath.Join(ctx.OutputPath, "objects", dir, outputRelPath)
 
 		fs.CreateDirTree(outputFullPath)
 
@@ -148,7 +148,7 @@ func buildDirectory(flags *cli.CliFlags, dir string, logIndent int) {
 
 		fmt.Println(strings.Repeat("\t", logIndent), source.FullPath)
 
-		output := shell.MustExecuteProgram(flags.CompilerPath, params...)
+		output := shell.MustExecuteProgram(ctx.CompilerPath, params...)
 
 		if len(output) > 0 {
 			fmt.Println(output)

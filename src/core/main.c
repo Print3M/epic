@@ -7,6 +7,8 @@
 typedef UINT(WINAPI *WinExecPtr)(LPCSTR lpCmdLine, UINT uCmdShow);
 
 // TODO: IDEA FOR GLOBALS WITH NO GLOBALS. WHAT ABOUT SAVING POINTER IN CPU REGISTER???
+// TODO: Check if this shit cannot be done without FUNC actually?
+// TODO: Add epic.h with macros +standalone +pic debug helpers
 
 FUNC PIMAGE_DOS_HEADER GetDllFromMemory(PPEB_LDR_DATA ldr, const wchar_t *name) {
 	wchar_t tmp_name[1024];

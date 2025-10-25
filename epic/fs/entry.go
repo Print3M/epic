@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"errors"
 	"log"
 	"os"
 	"path/filepath"
@@ -104,4 +105,10 @@ func MustWriteFile(path string, content string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func EntryExists(path string) bool {
+	_, err := os.Stat(path)
+
+	return !errors.Is(err, os.ErrNotExist)
 }
