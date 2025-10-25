@@ -5,7 +5,6 @@ import (
 	"epic/fs"
 	"epic/shell"
 	"fmt"
-	"path/filepath"
 )
 
 func BuildStandalone() {
@@ -17,7 +16,7 @@ func BuildStandalone() {
 		sourceFiles = append(sourceFiles, source.FullPath)
 	}
 
-	outputFile := filepath.Join(ctx.OutputPath, "standalone.exe")
+	outputFile := fs.OutputPath("standalone.exe")
 	params := []string{
 		"-o", outputFile,
 		"-w", "-Os",

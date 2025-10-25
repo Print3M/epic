@@ -16,9 +16,13 @@ func MustGetAbsPath(path string) string {
 }
 
 func OutputPath(parts ...string) string {
-	return filepath.Join(append([]string{ctx.OutputPath}, parts...)...)
+	allParts := append([]string{ctx.OutputPath}, parts...)
+
+	return filepath.Join(allParts...)
 }
 
 func ProjectPath(parts ...string) string {
-	return filepath.Join(append([]string{ctx.ProjectPath}, parts...)...)
+	allParts := append([]string{ctx.ProjectPath}, parts...)
+
+	return filepath.Join(allParts...)
 }

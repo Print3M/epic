@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -18,9 +17,11 @@ var loaderContent string
 func BuildLoader() {
 	fmt.Println("[*] Building loader...")
 
-	loaderFile := createLoaderFile()
+	var (
+		loaderFile = createLoaderFile()
+		outputFile = fs.OutputPath("loader.exe")
+	)
 
-	outputFile := filepath.Join(ctx.OutputPath, "loader.exe")
 	params := []string{
 		"--sysroot", ctx.OutputPath,
 		"-o", outputFile,
@@ -39,13 +40,13 @@ func BuildLoader() {
 }
 
 func createLoaderFile() string {
-	cStr, err := binaryToCString(filepath.Join(ctx.OutputPath, "payload.bin"))
+	cStr, err := binaryToCString(fs.OutputPath("payload.bin"))
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	loaderWithPayload := strings.Replace(loaderContent, ":PAYLOAD:", cStr, 1)
-	loaderFile := filepath.Join(ctx.OutputPath, "assets", "loader.c")
+	loaderFile := fs.OutputPath("assets", "loader.c")
 	fs.CreateDirTree(loaderFile)
 	fs.MustWriteFile(loaderFile, loaderWithPayload)
 

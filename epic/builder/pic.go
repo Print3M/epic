@@ -25,23 +25,23 @@ func BuildPIC(modules []string) {
 	var objectFiles []string
 
 	// Collect core object files
-	corePath := filepath.Join(ctx.OutputPath, "objects/core")
+	corePath := fs.OutputPath("objects", "core")
 	for _, e := range fs.GetFilesByExtension(corePath, ".o") {
 		objectFiles = append(objectFiles, e.FullPath)
 	}
 
 	// Collect modules object files
 	for _, module := range modules {
-		modulePath := filepath.Join(ctx.OutputPath, "objects/modules", module)
+		modulePath := fs.OutputPath("objects", "modules", module)
 
 		for _, e := range fs.GetFilesByExtension(modulePath, ".o") {
 			objectFiles = append(objectFiles, e.FullPath)
 		}
 	}
 
-	outputFile := filepath.Join(ctx.OutputPath, "payload.bin")
+	outputFile := fs.OutputPath("payload.bin")
 
-	linkerScriptFile := filepath.Join(ctx.OutputPath, "assets", "linker.ld")
+	linkerScriptFile := fs.OutputPath("assets", "linker.ld")
 	fs.CreateDirTree(linkerScriptFile)
 	fs.MustWriteFile(linkerScriptFile, linkerScriptContent)
 
@@ -97,12 +97,12 @@ func getModuleNames(modulesPath string) []Module {
 func buildModules() {
 	fmt.Println("[*] Building modules...")
 
-	modules := getModuleNames(filepath.Join(ctx.ProjectPath, "modules"))
+	modules := getModuleNames(fs.ProjectPath("modules"))
 
 	for _, module := range modules {
 		fmt.Println("\t[*] Building module:", module.Name)
 
-		buildDirectory(filepath.Join("modules/", module.Name), 2)
+		buildDirectory(filepath.Join("modules", module.Name), 2)
 
 		fmt.Println("\t[+] Module built:", module.Name)
 	}
@@ -111,11 +111,11 @@ func buildModules() {
 }
 
 func buildDirectory(dir string, logIndent int) {
-	corePath := filepath.Join(ctx.ProjectPath, dir)
+	corePath := fs.ProjectPath(dir)
 
 	for _, source := range fs.GetFilesByExtension(corePath, ".c") {
 		outputRelPath := fs.ReplaceExtension(source.RelPath, ".o")
-		outputFullPath := filepath.Join(ctx.OutputPath, "objects", dir, outputRelPath)
+		outputFullPath := fs.OutputPath("objects", dir, outputRelPath)
 
 		fs.CreateDirTree(outputFullPath)
 
