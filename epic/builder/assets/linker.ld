@@ -1,4 +1,6 @@
-OUTPUT_FORMAT("binary");
+/* binary */
+OUTPUT_FORMAT("elf64-x86-64")
+ENTRY(main)
 
 BASE = 0x00;
 
@@ -8,8 +10,8 @@ SECTIONS
     .text : {
         . = BASE;
         *(.entry)
-        *(.text)
-        *(.func)
-        *(.rdata)
+        *(.text.*)
+        /* *(.func) */
+        *(.rodata)
     }
 }

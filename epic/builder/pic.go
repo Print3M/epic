@@ -13,7 +13,7 @@ import (
 //go:embed assets/linker.ld
 var linkerScriptContent string
 
-func BuildPIC(modules []string) {
+func BuildPIC() {
 	buildCore()
 	fmt.Println()
 
@@ -31,7 +31,7 @@ func BuildPIC(modules []string) {
 	}
 
 	// Collect modules object files
-	for _, module := range modules {
+	for _, module := range ctx.Modules {
 		modulePath := fs.OutputPath("objects", "modules", module)
 
 		for _, e := range fs.GetFilesByExtension(modulePath, ".o") {
@@ -39,13 +39,20 @@ func BuildPIC(modules []string) {
 		}
 	}
 
-	outputFile := fs.OutputPath("payload.bin")
+	// TODO: Return to payload.bin
+	outputFile := fs.OutputPath("payload.elf")
 
 	linkerScriptFile := fs.OutputPath("assets", "linker.ld")
 	fs.CreateDirTree(linkerScriptFile)
 	fs.MustWriteFile(linkerScriptFile, linkerScriptContent)
 
+	linkerMapFile := fs.OutputPath("payload.linker.map")
+
 	params := []string{
+		"--print-gc-sections",
+		"--gc-sections",
+		"--entry=main",
+		"-Map", linkerMapFile,
 		"-T", linkerScriptFile,
 		"-o", outputFile,
 	}
@@ -121,12 +128,9 @@ func buildDirectory(dir string, logIndent int) {
 
 		// TODO: Check which parameters are actually necessary (some of them are linker params)
 		params := []string{
-			"--sysroot",
-			corePath,
-			"-c",
-			source.FullPath,
-			"-o",
-			outputFullPath,
+			"--sysroot", corePath,
+			"-c", source.FullPath,
+			"-o", outputFullPath,
 			"-nostdlib",
 			"-fPIC",
 			"-nostartfiles",
@@ -144,11 +148,12 @@ func buildDirectory(dir string, logIndent int) {
 			"-mno-red-zone",
 			"-fdiagnostics-color=always",
 			"-std=c17",
+			"-fdata-sections",
 		}
 
 		fmt.Println(strings.Repeat("\t", logIndent), source.FullPath)
 
-		output := shell.MustExecuteProgram(ctx.CompilerPath, params...)
+		output := shell.MustExecuteProgram("gcc", params...)
 
 		if len(output) > 0 {
 			fmt.Println(output)

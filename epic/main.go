@@ -4,27 +4,34 @@ import (
 	"epic/builder"
 	"epic/cli"
 	"epic/ctx"
+	"epic/shell"
 	"fmt"
+	"log"
 )
+
+/*
+	TODO:
+	1. Move from MinGW to GCC for PIC compilation (pure-GNU chain)
+	2. Check dead code elimination capabilities
+	3. Write it down why we switched from MinGW to GCC
+	4. Fix calling convention
+*/
 
 func main() {
 	cli.InitCLI()
 
-	/*
-		TODO: There's no error when executed with wrong software
-		if !shell.IsProgramAvailable(flags.CompilerPath) {
-			log.Fatalf("Compiler not found: %s\n", flags.CompilerPath)
-		}
+	if !shell.IsProgramAvailable(ctx.CompilerPath) {
+		log.Fatalf("Compiler not found: %s\n", ctx.CompilerPath)
+	}
 
-		if !shell.IsProgramAvailable(flags.LinkerPath) {
-			log.Fatalf("Linker not found: %s\n", flags.LinkerPath)
-		}
-	*/
+	if !shell.IsProgramAvailable(ctx.LinkerPath) {
+		log.Fatalf("Linker not found: %s\n", ctx.LinkerPath)
+	}
 
 	if !ctx.NoPIC {
 		// Compile PIC payload
 		fmt.Println()
-		builder.BuildPIC([]string{"pwd"})
+		builder.BuildPIC()
 	}
 
 	if !ctx.NoLoader {
@@ -44,7 +51,4 @@ func main() {
 	TODO:
 		- Add colors and loading bars in CLI
 		- Add fancy banner (like in DllShimmer)
-		- Add global context & Cobra CLI
-		- Add dynamic modules
-		- Refactor
 */

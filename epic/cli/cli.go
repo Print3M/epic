@@ -53,7 +53,7 @@ func InitCLI() {
 		fmt.Println()
 		fmt.Println("Example:")
 		fmt.Println()
-		fmt.Println("  epic -p src/ -o output/")
+		fmt.Println("  epic -p project/ -o output/")
 		fmt.Println()
 		fmt.Println("Created by Print3M (print3m.github.io)")
 		fmt.Println()
@@ -83,4 +83,7 @@ func InitCLI() {
 	}
 
 	MustValidateProjectPath(ctx.ProjectPath)
+
+	// TODO: Implement it as parameter
+	ctx.Modules = []string{"pwd"}
 }
