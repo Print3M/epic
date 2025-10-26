@@ -11,32 +11,27 @@ type FsEntry struct {
 	Name     string
 	Dir      string
 	FullPath string
-	RelPath  string
 	IsDir    bool
 }
 
-func rawToFsEntry(entry os.DirEntry, entryPath string, basePath string) FsEntry {
+func rawToFsEntry(entry os.DirEntry, entryPath string) FsEntry {
 	dir := filepath.Dir(entryPath)
 	name := entry.Name()
 	absDir := MustGetAbsPath(dir)
 	fullPath := filepath.Join(absDir, name)
 
-	relPath, err := filepath.Rel(MustGetAbsPath(basePath), fullPath)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	return FsEntry{
 		Name:     name,
 		IsDir:    entry.IsDir(),
 		Dir:      filepath.Dir(fullPath),
-		RelPath:  relPath,
 		FullPath: fullPath,
 	}
 }
 
 func GetDirectories(path string) []FsEntry {
-	// Get all directories (no subdirectories) from path.
+	/*
+		Get all directories (no subdirectories) from path.
+	*/
 	rawEntries, err := os.ReadDir(path)
 	if err != nil {
 		log.Fatalln(err)
@@ -50,14 +45,16 @@ func GetDirectories(path string) []FsEntry {
 		}
 
 		entryPath := filepath.Join(path, entry.Name())
-		entries = append(entries, rawToFsEntry(entry, entryPath, path))
+		entries = append(entries, rawToFsEntry(entry, entryPath))
 	}
 
 	return entries
 }
 
 func GetFilesByExtension(path string, ext string) []FsEntry {
-	// Get all files from path and all subdirectories by extension.
+	/*
+		Get all files from path and all subdirectories by extension.
+	*/
 	var files []FsEntry
 
 	err := filepath.WalkDir(path, func(entryPath string, entry os.DirEntry, err error) error {
@@ -69,7 +66,7 @@ func GetFilesByExtension(path string, ext string) []FsEntry {
 			return nil
 		}
 
-		files = append(files, rawToFsEntry(entry, entryPath, path))
+		files = append(files, rawToFsEntry(entry, entryPath))
 
 		return nil
 	})
@@ -81,7 +78,7 @@ func GetFilesByExtension(path string, ext string) []FsEntry {
 	return files
 }
 
-func CreateDirTree(path string) {
+func MustCreateDirTree(path string) {
 	err := os.MkdirAll(filepath.Dir(path), 0755)
 	if err != nil {
 		log.Fatal(err)

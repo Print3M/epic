@@ -3,14 +3,15 @@ package ctx
 var (
 	ProjectPath  string
 	OutputPath   string
-	GccPath      string
-	MingwGccPath string
+	CompilerPath string
 	LinkerPath   string
-	PICLinkOnly  bool     //TODO: Implement linking only, without building
-	Modules      []string // TODO: Implement dynamic modules
+	ObjcopyPath  string
+	PICLinkOnly  bool //TODO: Implement linking only, without building
+	Modules      []string
 	NoPIC        bool
 	NoLoader     bool
 	NoStandalone bool
 	NoColors     bool // TODO: Implement colors / disable colors
 	NoBanner     bool // TODO: Implement banner / disable banner
+	Debug        bool // TODO: Implement debug option
 )

@@ -6,6 +6,7 @@ import (
 	"epic/fs"
 	"epic/shell"
 	"fmt"
+	"log"
 	"path/filepath"
 	"strings"
 )
@@ -20,36 +21,43 @@ func BuildPIC() {
 	buildModules()
 	fmt.Println()
 
+	linkedExecutable := linkExecutable()
+	extractTextSection(linkedExecutable)
+}
+
+func extractTextSection(file string) {
+	/*
+		Using objcopy tool extract .text section from compiled executable.
+	*/
+	outputFile := fs.OutputPath("payload.bin")
+
+	output := shell.MustExecuteProgram(ctx.ObjcopyPath, "-O", "binary", "--only-section=.text", file, outputFile)
+	if len(output) > 0 {
+		fmt.Println(output)
+	}
+
+	fmt.Println("[+] PIC payload extracted from ELF.")
+}
+
+func linkExecutable() string {
+	/*
+		Using ld linker link all object files
+	*/
+
 	fmt.Println("[*] Linking PIC payload...")
 
-	var objectFiles []string
-
-	// Collect core object files
-	corePath := fs.OutputPath("objects", "core")
-	for _, e := range fs.GetFilesByExtension(corePath, ".o") {
-		objectFiles = append(objectFiles, e.FullPath)
-	}
-
-	// Collect modules object files
-	for _, module := range ctx.Modules {
-		modulePath := fs.OutputPath("objects", "modules", module)
-
-		for _, e := range fs.GetFilesByExtension(modulePath, ".o") {
-			objectFiles = append(objectFiles, e.FullPath)
-		}
-	}
-
-	// TODO: Return to payload.bin
 	outputElfFile := fs.OutputPath("payload.elf")
-
 	linkerScriptFile := fs.OutputPath("assets", "linker.ld")
-	fs.CreateDirTree(linkerScriptFile)
+
+	fs.MustCreateDirTree(linkerScriptFile)
 	fs.MustWriteFile(linkerScriptFile, linkerScriptContent)
 
 	linkerMapFile := fs.OutputPath("payload.linker.map")
 
+	objectFiles := getObjectFiles()
+
 	params := []string{
-		"--print-gc-sections",
+		// "--print-gc-sections", // TODO: Debug option
 		"--gc-sections",
 		"--entry=main",
 		"-Map", linkerMapFile,
@@ -59,65 +67,57 @@ func BuildPIC() {
 
 	params = append(params, objectFiles...)
 
-	output := shell.MustExecuteProgram("x86_64-w64-mingw32-ld", params...)
+	output := shell.MustExecuteProgram(ctx.LinkerPath, params...)
 	if len(output) > 0 {
 		fmt.Println(output)
 	}
 
 	fmt.Println("[+] PIC ELF linked.")
 
-	outputBinFile := fs.OutputPath("payload.bin")
+	return outputElfFile
+}
 
-	output = shell.MustExecuteProgram("x86_64-w64-mingw32-objcopy", "-O", "binary", "--only-section=.text", outputElfFile, outputBinFile)
-	if len(output) > 0 {
-		fmt.Println(output)
+func getObjectFiles() []string {
+	var objectFiles []string
+
+	// Collecting core
+	for _, f := range fs.GetFilesByExtension(fs.OutputPath("objects", "core"), ".o") {
+		objectFiles = append(objectFiles, f.FullPath)
 	}
 
-	fmt.Println("[+] PIC payload extracted from ELF.")
+	// Collecting modules
+	for _, m := range fs.GetOutputModules() {
+		for _, f := range fs.GetFilesByExtension(m.Path, ".o") {
+			objectFiles = append(objectFiles, f.FullPath)
+		}
+	}
+
+	return objectFiles
 }
 
 func buildCore() {
+	/*
+		Build "project/core/**" directory.
+	*/
 	fmt.Println("[*] Building core...")
 
-	buildDirectory("core", 1)
+	buildDirectory(fs.ProjectPath("core"), 1)
 
 	fmt.Println("[+] Core built!")
 }
 
-type Module struct {
-	Name     string
-	FullPath string
-}
-
-func getModuleNames(modulesPath string) []Module {
-	// Each module is a separate directory in 'modules/' path
-	entries := fs.GetDirectories(modulesPath)
-
-	var modules []Module
-
-	for _, entry := range entries {
-		if !entry.IsDir {
-			continue
-		}
-
-		modules = append(modules, Module{
-			Name:     entry.Name,
-			FullPath: entry.FullPath,
-		})
-	}
-
-	return modules
-}
-
 func buildModules() {
+	/*
+		Build "project/modules/<name>/**" directories.
+	*/
 	fmt.Println("[*] Building modules...")
 
-	modules := getModuleNames(fs.ProjectPath("modules"))
+	modules := fs.GetProjectModules()
 
 	for _, module := range modules {
 		fmt.Println("\t[*] Building module:", module.Name)
 
-		buildDirectory(filepath.Join("modules", module.Name), 2)
+		buildDirectory(fs.ProjectPath("modules", module.Name), 2)
 
 		fmt.Println("\t[+] Module built:", module.Name)
 	}
@@ -125,20 +125,27 @@ func buildModules() {
 	fmt.Println("[+] Modules built!")
 }
 
-func buildDirectory(dir string, logIndent int) {
-	corePath := fs.ProjectPath(dir)
+func buildDirectory(rootDir string, logIndent int) {
+	/*
+		Build all source files from :rootDir and put it into output/objects/**
+		directories. The output structure of directory is mimicking the rootDir.
+	*/
+	for _, file := range fs.GetFilesByExtension(rootDir, ".c") {
+		relPath, err := filepath.Rel(ctx.ProjectPath, file.FullPath)
+		if err != nil {
+			log.Println(err)
+		}
 
-	for _, source := range fs.GetFilesByExtension(corePath, ".c") {
-		outputRelPath := fs.ReplaceExtension(source.RelPath, ".o")
-		outputFullPath := fs.OutputPath("objects", dir, outputRelPath)
+		objectFileName := fs.ReplaceExtension(file.Name, ".o")
+		outputPath := fs.OutputPath("objects", filepath.Dir(relPath), objectFileName)
 
-		fs.CreateDirTree(outputFullPath)
+		fs.MustCreateDirTree(outputPath)
 
 		// TODO: Check which parameters are actually necessary (some of them are linker params)
 		params := []string{
-			"--sysroot", corePath,
-			"-c", source.FullPath,
-			"-o", outputFullPath,
+			"--sysroot", rootDir,
+			"-c", file.FullPath,
+			"-o", outputPath,
 			"-nostdlib",
 			"-fPIC",
 			"-nostartfiles",
@@ -156,11 +163,11 @@ func buildDirectory(dir string, logIndent int) {
 			"-mno-stack-arg-probe",
 			"-mno-red-zone",
 			"-fdiagnostics-color=always",
-			"-std=c17",
 			"-fcf-protection=none",
+			"-std=c17",
 		}
 
-		fmt.Println(strings.Repeat("\t", logIndent), source.FullPath)
+		fmt.Println(strings.Repeat("\t", logIndent), file.FullPath)
 
 		output := shell.MustExecuteProgram("x86_64-w64-mingw32-gcc", params...)
 

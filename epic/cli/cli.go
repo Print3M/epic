@@ -8,9 +8,10 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-func MustValidateProjectPath(projectPath string) {
+func mustValidateProjectPath(projectPath string) {
 	if p := filepath.Join(projectPath, "core"); !fs.EntryExists(p) {
 		log.Fatalf("Invalid project structure. Path doesn't exist: %s", p)
 	}
@@ -24,6 +25,21 @@ func MustValidateProjectPath(projectPath string) {
 	}
 }
 
+func parseModules(param string) {
+	if len(param) == 0 {
+		return
+	}
+
+	// Parse comma separated list of modules
+	modules := strings.Split(param, ",")
+
+	for i := range modules {
+		modules[i] = strings.ToLower(strings.TrimSpace(modules[i]))
+	}
+
+	ctx.Modules = modules
+}
+
 func InitCLI() {
 	flag.StringVar(&ctx.ProjectPath, "p", "", "")
 	flag.StringVar(&ctx.ProjectPath, "project", "", "")
@@ -31,30 +47,34 @@ func InitCLI() {
 	flag.StringVar(&ctx.OutputPath, "o", "", "")
 	flag.StringVar(&ctx.OutputPath, "output", "", "")
 
-	flag.StringVar(&ctx.GccPath, "gcc", "", "")
-	flag.StringVar(&ctx.LinkerPath, "ld", "", "")
-	flag.StringVar(&ctx.MingwGccPath, "mingw-gcc", "", "")
+	var modules string
+	flag.StringVar(&modules, "m", "", "")
+	flag.StringVar(&modules, "modules", "", "")
+
+	flag.StringVar(&ctx.CompilerPath, "w64-mingw-gcc", "", "")
+	flag.StringVar(&ctx.LinkerPath, "w64-mingw-ld", "", "")
+	flag.StringVar(&ctx.ObjcopyPath, "w64-mingw-objcopy", "", "")
 
 	flag.BoolVar(&ctx.NoPIC, "no-pic", false, "")
 	flag.BoolVar(&ctx.NoLoader, "no-loader", false, "")
 	flag.BoolVar(&ctx.NoStandalone, "no-standalone", false, "")
 
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage: epic -p <path> -o <path>\n")
+		fmt.Fprintf(os.Stderr, "Usage: epic -p <path> -o <path> -m pwd,ls\n")
 		fmt.Println()
-		fmt.Println("Usage:")
+		fmt.Println("Options:")
 		fmt.Println()
-		fmt.Printf("  %-26s %s\n", "-p, --project <path>", "Project directory (required)")
-		fmt.Printf("  %-26s %s\n", "-o, --output <path>", "Output directory (required)")
-		fmt.Printf("  %-26s %s\n", "--no-pic", "Disable PIC payload building")
-		fmt.Printf("  %-26s %s\n", "--no-loader", "Disable loader building")
-		fmt.Printf("  %-26s %s\n", "--no-standalone", "Disable standalone building")
+		fmt.Printf("  %-27s %s\n", "-p, --project <path>", "Project directory (required)")
+		fmt.Printf("  %-27s %s\n", "-o, --output <path>", "Output directory (required)")
+		fmt.Printf("  %-27s %s\n", "-m, --modules <path>", "Included module names (comma-separated list, default: none)")
+		fmt.Printf("  %-27s %s\n", "--no-pic", "Disable PIC payload building")
+		fmt.Printf("  %-27s %s\n", "--no-loader", "Disable loader building")
+		fmt.Printf("  %-27s %s\n", "--no-standalone", "Disable standalone building")
 		fmt.Println()
-		fmt.Println(" Advanced parameters:")
-		fmt.Printf("  %-26s %s\n", "--ld <path>", "Path to LD (GNU) linker")
-		fmt.Printf("  %-26s %s\n", "--gcc <path>", "Path to GCC compiler")
-		fmt.Printf("  %-26s %s\n", "--mingw-gcc <path>", "Path to MinGW-GCC compiler. It's not used for PIC payload compilation.")
-		fmt.Printf("  %-26s %s\n", "--mingw-gcc <path>", "Path to MinGW-GCC compiler. It's not used for PIC payload compilation.")
+		fmt.Println("Tool-chain options:")
+		fmt.Printf("  %-27s %s\n", "--w64-mingw-gcc <path>", "Path to Mingw-w64 GCC compiler")
+		fmt.Printf("  %-27s %s\n", "--w64-mingw-ld <path>", "Path to Mingw-w64 LD linker")
+		fmt.Printf("  %-27s %s\n", "--w64-mingw-objcopy <path>", "Path to Mingw-w64 objcopy tool")
 		fmt.Println()
 		fmt.Println("Example:")
 		fmt.Println()
@@ -66,6 +86,11 @@ func InitCLI() {
 
 	flag.Parse()
 
+	if ctx.NoPIC && ctx.NoLoader && ctx.NoStandalone {
+		fmt.Println("You've disabled everything. I can't offer you anything more...")
+		os.Exit(1)
+	}
+
 	if ctx.ProjectPath == "" || ctx.OutputPath == "" {
 		flag.Usage()
 		os.Exit(1)
@@ -74,25 +99,23 @@ func InitCLI() {
 	ctx.ProjectPath = fs.MustGetAbsPath(ctx.ProjectPath)
 	ctx.OutputPath = fs.MustGetAbsPath(ctx.OutputPath)
 
-	if ctx.MingwGccPath == "" {
-		ctx.MingwGccPath = "x86_64-w64-mingw32-gcc"
+	if ctx.CompilerPath == "" {
+		ctx.CompilerPath = "x86_64-w64-mingw32-gcc"
 	}
 
-	if ctx.GccPath == "" {
-		ctx.GccPath = "gcc"
+	if ctx.CompilerPath == "" {
+		ctx.CompilerPath = "gcc"
 	}
 
 	if ctx.LinkerPath == "" {
 		ctx.LinkerPath = "ld"
 	}
 
-	if ctx.NoPIC && ctx.NoLoader && ctx.NoStandalone {
-		fmt.Println("You've disabled everything. I can't offer you anything more...")
-		os.Exit(1)
+	if ctx.ObjcopyPath == "" {
+		ctx.ObjcopyPath = "x86_64-w64-mingw32-objcopy"
 	}
 
-	MustValidateProjectPath(ctx.ProjectPath)
+	parseModules(modules)
 
-	// TODO: Implement it as parameter
-	ctx.Modules = []string{"pwd"}
+	mustValidateProjectPath(ctx.ProjectPath)
 }

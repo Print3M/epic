@@ -30,7 +30,7 @@ func BuildLoader() {
 		loaderFile,
 	}
 
-	output := shell.MustExecuteProgram(ctx.MingwGccPath, params...)
+	output := shell.MustExecuteProgram(ctx.CompilerPath, params...)
 
 	if len(output) > 0 {
 		fmt.Println(output)
@@ -47,7 +47,7 @@ func createLoaderFile() string {
 
 	loaderWithPayload := strings.Replace(loaderContent, ":PAYLOAD:", cStr, 1)
 	loaderFile := fs.OutputPath("assets", "loader.c")
-	fs.CreateDirTree(loaderFile)
+	fs.MustCreateDirTree(loaderFile)
 	fs.MustWriteFile(loaderFile, loaderWithPayload)
 
 	return loaderFile
