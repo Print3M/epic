@@ -30,7 +30,7 @@ func BuildLoader() {
 		loaderFile,
 	}
 
-	output := shell.MustExecuteProgram(ctx.CompilerPath, params...)
+	output := shell.MustExecuteProgram(ctx.MingwGccPath, params...)
 
 	if len(output) > 0 {
 		fmt.Println(output)

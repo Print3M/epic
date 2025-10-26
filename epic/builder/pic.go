@@ -40,7 +40,7 @@ func BuildPIC() {
 	}
 
 	// TODO: Return to payload.bin
-	outputFile := fs.OutputPath("payload.elf")
+	outputElfFile := fs.OutputPath("payload.elf")
 
 	linkerScriptFile := fs.OutputPath("assets", "linker.ld")
 	fs.CreateDirTree(linkerScriptFile)
@@ -54,18 +54,26 @@ func BuildPIC() {
 		"--entry=main",
 		"-Map", linkerMapFile,
 		"-T", linkerScriptFile,
-		"-o", outputFile,
+		"-o", outputElfFile,
 	}
 
 	params = append(params, objectFiles...)
 
 	output := shell.MustExecuteProgram(ctx.LinkerPath, params...)
-
 	if len(output) > 0 {
 		fmt.Println(output)
 	}
 
-	fmt.Println("[+] PIC payload linked!")
+	fmt.Println("[+] PIC ELF linked.")
+
+	outputBinFile := fs.OutputPath("payload.bin")
+
+	output = shell.MustExecuteProgram("objcopy", "-O", "binary", "--only-section=.text", outputElfFile, outputBinFile)
+	if len(output) > 0 {
+		fmt.Println(output)
+	}
+
+	fmt.Println("[+] PIC payload extracted from ELF.")
 }
 
 func buildCore() {
@@ -149,11 +157,12 @@ func buildDirectory(dir string, logIndent int) {
 			"-fdiagnostics-color=always",
 			"-std=c17",
 			"-fdata-sections",
+			"-fcf-protection=none",
 		}
 
 		fmt.Println(strings.Repeat("\t", logIndent), source.FullPath)
 
-		output := shell.MustExecuteProgram("gcc", params...)
+		output := shell.MustExecuteProgram(ctx.GccPath, params...)
 
 		if len(output) > 0 {
 			fmt.Println(output)

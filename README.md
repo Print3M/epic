@@ -32,4 +32,4 @@ It's possible to generate map of linked sections. Great tool for deep inspection
 
 ## Dead code elimination doesn't work
 
-It doesn't work probably because of  `OUTPUT_FORMAT("binary");`
+It doesn't work probably because of  `OUTPUT_FORMAT("binary");`. 

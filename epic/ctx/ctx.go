@@ -3,8 +3,10 @@ package ctx
 var (
 	ProjectPath  string
 	OutputPath   string
-	CompilerPath string
+	GccPath      string
+	MingwGccPath string
 	LinkerPath   string
+	PICLinkOnly  bool     //TODO: Implement linking only, without building
 	Modules      []string // TODO: Implement dynamic modules
 	NoPIC        bool
 	NoLoader     bool

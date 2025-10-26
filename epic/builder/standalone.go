@@ -26,7 +26,7 @@ func BuildStandalone() {
 	}
 	params = append(params, sourceFiles...)
 
-	output := shell.MustExecuteProgram(ctx.CompilerPath, params...)
+	output := shell.MustExecuteProgram(ctx.MingwGccPath, params...)
 
 	if len(output) > 0 {
 		fmt.Println(output)

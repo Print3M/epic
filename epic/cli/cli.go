@@ -31,8 +31,9 @@ func InitCLI() {
 	flag.StringVar(&ctx.OutputPath, "o", "", "")
 	flag.StringVar(&ctx.OutputPath, "output", "", "")
 
-	flag.StringVar(&ctx.CompilerPath, "gcc", "", "")
+	flag.StringVar(&ctx.GccPath, "gcc", "", "")
 	flag.StringVar(&ctx.LinkerPath, "ld", "", "")
+	flag.StringVar(&ctx.MingwGccPath, "mingw-gcc", "", "")
 
 	flag.BoolVar(&ctx.NoPIC, "no-pic", false, "")
 	flag.BoolVar(&ctx.NoLoader, "no-loader", false, "")
@@ -48,8 +49,12 @@ func InitCLI() {
 		fmt.Printf("  %-26s %s\n", "--no-pic", "Disable PIC payload building")
 		fmt.Printf("  %-26s %s\n", "--no-loader", "Disable loader building")
 		fmt.Printf("  %-26s %s\n", "--no-standalone", "Disable standalone building")
+		fmt.Println()
+		fmt.Println(" Advanced parameters:")
 		fmt.Printf("  %-26s %s\n", "--ld <path>", "Path to LD (GNU) linker")
-		fmt.Printf("  %-26s %s\n", "--gcc <path>", "Path to GCC (MinGW) compiler")
+		fmt.Printf("  %-26s %s\n", "--gcc <path>", "Path to GCC compiler")
+		fmt.Printf("  %-26s %s\n", "--mingw-gcc <path>", "Path to MinGW-GCC compiler. It's not used for PIC payload compilation.")
+		fmt.Printf("  %-26s %s\n", "--mingw-gcc <path>", "Path to MinGW-GCC compiler. It's not used for PIC payload compilation.")
 		fmt.Println()
 		fmt.Println("Example:")
 		fmt.Println()
@@ -69,8 +74,12 @@ func InitCLI() {
 	ctx.ProjectPath = fs.MustGetAbsPath(ctx.ProjectPath)
 	ctx.OutputPath = fs.MustGetAbsPath(ctx.OutputPath)
 
-	if ctx.CompilerPath == "" {
-		ctx.CompilerPath = "x86_64-w64-mingw32-gcc"
+	if ctx.MingwGccPath == "" {
+		ctx.MingwGccPath = "x86_64-w64-mingw32-gcc"
+	}
+
+	if ctx.GccPath == "" {
+		ctx.GccPath = "gcc"
 	}
 
 	if ctx.LinkerPath == "" {
