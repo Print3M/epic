@@ -1,9 +1,5 @@
 # EPIC - Extensible Position Independent Code
 
-```bash
-make
-```
-
 ## Interesting Observations
 
 I tried two approaches to linking functions:
@@ -39,3 +35,10 @@ Dead code elimination doesn't work for:
 
 To hack this I use `gcc` with custom linker script (`ld`) to ELF and then extracting PIC `.text` section using `objdump` to final `payload.bin` output. It works like a charm. This way the final payload is smaller then ever. This is the reason why I don't use MinGW for payload building.
 
+## Stack alignment for Win API
+
+Mingw-w64 automatically handles stack alignment when function is defined with `WINAPI` attribute.
+
+## Troubleshooting
+
+1. Clean output/ directory.
