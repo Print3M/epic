@@ -16,6 +16,8 @@ import (
 	3. Write it down why we switched from MinGW to GCC
 	4. Fix calling convention
 	5. Leave MinGW for standalone and loader compilation
+
+	TODO: Try for x86_64-w64-mingw32-ld
 */
 
 func main() {

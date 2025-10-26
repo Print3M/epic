@@ -1,5 +1,5 @@
 /* binary */
-OUTPUT_FORMAT("elf64-x86-64")
+OUTPUT_FORMAT(pei-x86-64)
 ENTRY(main)
 
 BASE = 0x00;
@@ -7,11 +7,11 @@ BASE = 0x00;
 SECTIONS
 {
     . = BASE;
-    .text : {
+    .text : SUBALIGN(1) {
         . = BASE;
         *(.entry)
-        *(.text.*)
-        /* *(.func) */
-        *(.rodata)
+        *(.text*)
+        *(.rdata)
+        *(.rdata*)
     }
 }

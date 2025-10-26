@@ -28,8 +28,14 @@ objdump -D -b binary -m i386:x86-64 -M intel payload.bin
 
 ## Linker map
 
-It's possible to generate map of linked sections. Great tool for deep inspection of linker's work. Use `-Map=linker.map` parameter.
+It's possible to generate map of linked sections. Great tool for deep inspection of linker's work. Use `-Map=linker.map` parameter. This file shows which sections (section == function when used with `-ffunction-sections`) are discarded and which are linked into the final payload. It shows the layout of linked sections and their size. Great tool for debugging.
 
 ## Dead code elimination doesn't work
 
-It doesn't work probably because of  `OUTPUT_FORMAT("binary");`. 
+Dead code elimination doesn't work for:
+
+1. MinGW PE/COFF target
+2. Linker output "binary"
+
+To hack this I use `gcc` with custom linker script (`ld`) to ELF and then extracting PIC `.text` section using `objdump` to final `payload.bin` output. It works like a charm. This way the final payload is smaller then ever. This is the reason why I don't use MinGW for payload building.
+

@@ -59,7 +59,7 @@ func BuildPIC() {
 
 	params = append(params, objectFiles...)
 
-	output := shell.MustExecuteProgram(ctx.LinkerPath, params...)
+	output := shell.MustExecuteProgram("x86_64-w64-mingw32-ld", params...)
 	if len(output) > 0 {
 		fmt.Println(output)
 	}
@@ -68,7 +68,7 @@ func BuildPIC() {
 
 	outputBinFile := fs.OutputPath("payload.bin")
 
-	output = shell.MustExecuteProgram("objcopy", "-O", "binary", "--only-section=.text", outputElfFile, outputBinFile)
+	output = shell.MustExecuteProgram("x86_64-w64-mingw32-objcopy", "-O", "binary", "--only-section=.text", outputElfFile, outputBinFile)
 	if len(output) > 0 {
 		fmt.Println(output)
 	}
@@ -147,6 +147,7 @@ func buildDirectory(dir string, logIndent int) {
 			"-ffreestanding",
 			"-fno-builtin",
 			"-ffunction-sections",
+			"-fdata-sections",
 			"-fno-ident",
 			"-falign-jumps=1",
 			"-mno-sse",
@@ -156,13 +157,12 @@ func buildDirectory(dir string, logIndent int) {
 			"-mno-red-zone",
 			"-fdiagnostics-color=always",
 			"-std=c17",
-			"-fdata-sections",
 			"-fcf-protection=none",
 		}
 
 		fmt.Println(strings.Repeat("\t", logIndent), source.FullPath)
 
-		output := shell.MustExecuteProgram(ctx.GccPath, params...)
+		output := shell.MustExecuteProgram("x86_64-w64-mingw32-gcc", params...)
 
 		if len(output) > 0 {
 			fmt.Println(output)
