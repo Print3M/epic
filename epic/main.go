@@ -9,6 +9,11 @@ import (
 	"log"
 )
 
+// TODO:
+// Before run...
+// - Clean output/objects/
+// - Clean output/assets/
+
 func main() {
 	cli.InitCLI()
 

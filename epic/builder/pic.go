@@ -44,6 +44,7 @@ func linkExecutable() string {
 		Using ld linker link all object files
 	*/
 
+	// TODO: Print which modules are being linked...
 	fmt.Println("[*] Linking PIC payload...")
 
 	outputElfFile := fs.OutputPath("payload.elf")

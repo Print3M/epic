@@ -2,6 +2,7 @@ package fs
 
 import (
 	"epic/ctx"
+	"io/fs"
 	"log"
 	"path/filepath"
 	"slices"
@@ -86,6 +87,10 @@ func GetOutputModules() []Module {
 		Each module is a separate directory in "output/objects/modules/<module>/'
 	*/
 	searchPath := OutputPath("objects", "modules")
+
+	if !fs.ValidPath(searchPath) {
+		return []Module{}
+	}
 
 	return getModules(searchPath)
 }
