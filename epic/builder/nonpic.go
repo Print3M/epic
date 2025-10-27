@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"epic/cli"
 	"epic/ctx"
 	"epic/fs"
 	"epic/shell"
@@ -8,7 +9,7 @@ import (
 )
 
 func BuildNonPIC() {
-	fmt.Println("[*] Building non-PIC executable...")
+	cli.LogInfo("Building non-PIC executable...")
 
 	var sourceFiles []string
 
@@ -16,7 +17,7 @@ func BuildNonPIC() {
 		sourceFiles = append(sourceFiles, source.FullPath)
 	}
 
-	outputFile := fs.OutputPath("nonpic.exe")
+	outputFile := fs.OutputPath("non-pic.exe")
 	params := []string{
 		"-o", outputFile,
 		"-w", "-Os",
@@ -29,10 +30,9 @@ func BuildNonPIC() {
 	params = append(params, sourceFiles...)
 
 	output := shell.MustExecuteProgram(ctx.CompilerPath, params...)
-
 	if len(output) > 0 {
 		fmt.Println(output)
 	}
 
-	fmt.Println("[*] Non-PIC executable built!")
+	cli.LogOk("Non-PIC executable built!")
 }

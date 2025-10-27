@@ -2,6 +2,7 @@ package builder
 
 import (
 	_ "embed"
+	"epic/cli"
 	"epic/ctx"
 	"epic/fs"
 	"epic/shell"
@@ -15,7 +16,7 @@ import (
 var loaderContent string
 
 func BuildLoader() {
-	fmt.Println("[*] Building loader...")
+	cli.LogInfo("Building loader...")
 
 	var (
 		loaderFile = createLoaderFile()
@@ -31,12 +32,11 @@ func BuildLoader() {
 	}
 
 	output := shell.MustExecuteProgram(ctx.CompilerPath, params...)
-
 	if len(output) > 0 {
 		fmt.Println(output)
 	}
 
-	fmt.Println("[*] Loader built!")
+	cli.LogOk("Loader built!")
 }
 
 func createLoaderFile() string {
@@ -49,6 +49,8 @@ func createLoaderFile() string {
 	loaderFile := fs.OutputPath("assets", "loader.c")
 	fs.MustCreateDirTree(loaderFile)
 	fs.MustWriteFile(loaderFile, loaderWithPayload)
+
+	cli.LogInfo("PIC payload injected into loader template")
 
 	return loaderFile
 }

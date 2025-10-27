@@ -6,7 +6,6 @@ import (
 	"epic/ctx"
 	"epic/shell"
 	"fmt"
-	"log"
 	"os"
 )
 
@@ -16,37 +15,50 @@ import (
 // - Clean output/assets/
 // TODO:
 // - Check standalone with printf() function
-// - Add colors and loading bars in CLI
 // - Add fancy banner (like in DllShimmer)
 // - Print nice output with generated files and what to do next with them
 // - Test standalone with printf()
 // - Add cool README
 
+func assertCompiler() {
+	if !shell.IsProgramAvailable(ctx.CompilerPath) {
+		cli.LogErr(fmt.Sprintf("Mingw-w64 GCC compiler not found: %s\n", ctx.CompilerPath))
+		os.Exit(1)
+	}
+}
+
+func assertLinker() {
+	if !shell.IsProgramAvailable(ctx.LinkerPath) {
+		cli.LogErr(fmt.Sprintf("Mingw-w64 ld linker not found: %s\n", ctx.LinkerPath))
+		os.Exit(1)
+	}
+}
+
+func assertObjcopy() {
+	if !shell.IsProgramAvailable(ctx.LinkerPath) {
+		cli.LogErr(fmt.Sprintf("Mingw-w64 objcopy tool not found: %s\n", ctx.ObjcopyPath))
+		os.Exit(1)
+	}
+}
+
 func main() {
 	cli.InitCLI()
 
 	if ctx.Debug {
-		fmt.Println("[DBG] Debug mode enabled")
+		cli.LogDbg("Debug mode enabled")
 	}
 
 	if !ctx.NoPIC {
-		if !shell.IsProgramAvailable(ctx.CompilerPath) {
-			log.Fatalf("GCC compiler not found: %s\n", ctx.CompilerPath)
-		}
-
-		if !shell.IsProgramAvailable(ctx.LinkerPath) {
-			log.Fatalf("Linker not found: %s\n", ctx.LinkerPath)
-		}
+		assertCompiler()
+		assertLinker()
+		assertObjcopy()
 
 		// Compile PIC payload
-		fmt.Println()
 		builder.BuildPIC()
 	}
 
 	if !ctx.NoLoader {
-		if !shell.IsProgramAvailable(ctx.CompilerPath) {
-			log.Fatalf("MinGW-GCC compiler not found: %s\n", ctx.CompilerPath)
-		}
+		assertCompiler()
 
 		// Compile loader
 		fmt.Println()
@@ -54,9 +66,7 @@ func main() {
 	}
 
 	if !ctx.NoNonPIC {
-		if !shell.IsProgramAvailable(ctx.CompilerPath) {
-			log.Fatalf("MinGW-GCC compiler not found: %s\n", ctx.CompilerPath)
-		}
+		assertCompiler()
 
 		// Compile standalone
 		fmt.Println()

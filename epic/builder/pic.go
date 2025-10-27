@@ -2,11 +2,12 @@ package builder
 
 import (
 	_ "embed"
+	"epic/cli"
 	"epic/ctx"
 	"epic/fs"
 	"epic/shell"
 	"fmt"
-	"log"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -29,6 +30,7 @@ func extractTextSection(file string) {
 	/*
 		Using objcopy tool extract .text section from compiled executable.
 	*/
+	cli.LogInfo("Extracting '.text' section from PIC-PE...")
 	outputFile := fs.OutputPath("payload.bin")
 
 	output := shell.MustExecuteProgram(ctx.ObjcopyPath, "-O", "binary", "--only-section=.text", file, outputFile)
@@ -36,7 +38,7 @@ func extractTextSection(file string) {
 		fmt.Println(output)
 	}
 
-	fmt.Println("[+] PIC payload extracted from PE.")
+	cli.LogOk("PIC payload extracted!")
 }
 
 func linkExecutable() string {
@@ -44,10 +46,12 @@ func linkExecutable() string {
 		Using ld linker link all object files
 	*/
 
-	// TODO: Print which modules are being linked...
-	fmt.Println("[*] Linking PIC payload...")
+	var modules []string
+	for _, m := range fs.GetOutputModules() {
+		modules = append(modules, m.Name)
+	}
+	cli.LogInfo(fmt.Sprintf("Linking PIC core + modules (%s)", strings.Join(modules, ",")))
 
-	// TODO: Change this to payload.exe (check what it does actually on Windows)
 	outputPeFile := fs.OutputPath("assets", "payload.exe")
 	linkerMapFile := fs.OutputPath("assets", "payload.linker.map")
 	fs.MustCreateDirTree(outputPeFile)
@@ -59,11 +63,19 @@ func linkExecutable() string {
 
 	objectFiles := getObjectFiles()
 
+	if ctx.Debug {
+		cli.LogDbg("Linking:")
+		for _, f := range objectFiles {
+			cli.LogDbg(fmt.Sprintf(" - Linking: %s", f))
+		}
+	}
+
 	params := []string{
 		"--gc-sections",
 		"-Map", linkerMapFile,
 		"-T", linkerScriptFile,
 		"-o", outputPeFile,
+		"--image-base=0x00",
 	}
 
 	params = append(params, objectFiles...)
@@ -73,7 +85,7 @@ func linkExecutable() string {
 		fmt.Println(output)
 	}
 
-	fmt.Println("[+] PIC PE linked.")
+	cli.LogOk("PIC-PE linked!")
 
 	return outputPeFile
 }
@@ -93,12 +105,6 @@ func getObjectFiles() []string {
 		}
 	}
 
-	if ctx.Debug {
-		for _, f := range objectFiles {
-			fmt.Println("[DBG] Linking:", f)
-		}
-	}
-
 	return objectFiles
 }
 
@@ -106,30 +112,27 @@ func buildCore() {
 	/*
 		Build "project/core/**" directory.
 	*/
-	fmt.Println("[*] Building core...")
+	cli.LogInfo("Building core...")
 
 	buildDirectory(fs.ProjectPath("core"), 1)
 
-	fmt.Println("[+] Core built!")
+	cli.LogOk("Core built!")
 }
 
 func buildModules() {
 	/*
 		Build "project/modules/<name>/**" directories.
 	*/
-	fmt.Println("[*] Building modules...")
-
 	modules := fs.GetProjectModules()
 
 	for _, module := range modules {
-		fmt.Println("\t[*] Building module:", module.Name)
+		cli.LogInfo(fmt.Sprintf("Building module: %s", module.Name))
 
 		buildDirectory(fs.ProjectPath("modules", module.Name), 2)
 
-		fmt.Println("\t[+] Module built:", module.Name)
-	}
+		cli.LogOk(fmt.Sprintf("Module built: %s", module.Name))
 
-	fmt.Println("[+] Modules built!")
+	}
 }
 
 func buildDirectory(rootDir string, logIndent int) {
@@ -140,7 +143,8 @@ func buildDirectory(rootDir string, logIndent int) {
 	for _, file := range fs.GetFilesByExtension(rootDir, ".c") {
 		relPath, err := filepath.Rel(ctx.ProjectPath, file.FullPath)
 		if err != nil {
-			log.Println(err)
+			cli.LogErr(fmt.Sprintf("%v", err))
+			os.Exit(1)
 		}
 
 		objectFileName := fs.ReplaceExtension(file.Name, ".o")
@@ -179,7 +183,7 @@ func buildDirectory(rootDir string, logIndent int) {
 			"-ffixed-rbx",
 		}
 
-		fmt.Println(strings.Repeat("\t", logIndent), file.FullPath)
+		cli.LogInfo(fmt.Sprintf(" - Building: %s", file.FullPath))
 
 		output := shell.MustExecuteProgram("x86_64-w64-mingw32-gcc", params...)
 

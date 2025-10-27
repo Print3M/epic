@@ -1,6 +1,7 @@
 package shell
 
 import (
+	"epic/cli"
 	"epic/ctx"
 	"fmt"
 	"log"
@@ -17,13 +18,16 @@ func MustExecuteProgram(name string, args ...string) string {
 	cmd := exec.Command(name, args...)
 
 	if ctx.Debug {
-		fmt.Println("[DBG] Command executed:", cmd.String())
+		cli.LogDbg("Command executed:")
+		fmt.Println(cmd.String())
 	}
 
 	output, err := cmd.CombinedOutput()
 
 	if exitErr, ok := err.(*exec.ExitError); ok {
-		log.Fatalln(fmt.Errorf("exit code %d: %s", exitErr.ExitCode(), output))
+		exitCode := exitErr.ExitCode()
+		cli.LogErr(fmt.Sprintf("'%s' exit code: %d", name, exitCode))
+		log.Fatalln(string(output))
 	}
 
 	return string(output)
