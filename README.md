@@ -39,6 +39,14 @@ To hack this I use `gcc` with custom linker script (`ld`) to ELF and then extrac
 
 Mingw-w64 automatically handles stack alignment when function is defined with `WINAPI` attribute.
 
+## `main()` and `__main()` functions
+
+If you implement `main()` function no matter how hard I tried it's always treated special by GCC compiler. No matter how many compiler flags, function attributes and linker scripting I used there's always generated unnecessary call to `__main()` at the beginning of `main()`. It means you need to implement this stupid `__main()` somehow, otherwise there's an linker error. The reason for this is behaviour is unknonw and I found no way to disable it.
+
+Solution to this problem is using `main()` as entry point and implement dummy empty `__main() {}` function. It works, but honestly I wanted my code to be as clean as possible with no dummy functions!
+
+Second solution is not to use `main()` at all. Create a not-main function (e.g. `__main_pic`) and use it as a entry point. It works this way.
+
 ## Troubleshooting
 
 1. Clean output/ directory.

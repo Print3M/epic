@@ -60,7 +60,6 @@ func linkExecutable() string {
 	params := []string{
 		// "--print-gc-sections", // TODO: Debug option
 		"--gc-sections",
-		"--entry=main",
 		"-Map", linkerMapFile,
 		"-T", linkerScriptFile,
 		"-o", outputElfFile,
@@ -165,7 +164,9 @@ func buildDirectory(rootDir string, logIndent int) {
 			"-mno-red-zone",
 			"-fdiagnostics-color=always",
 			"-fcf-protection=none",
+			"-fno-delete-null-pointer-checks",
 			"-std=c17",
+			"-nodefaultlibs",
 		}
 
 		fmt.Println(strings.Repeat("\t", logIndent), file.FullPath)

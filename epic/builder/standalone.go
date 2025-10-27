@@ -20,7 +20,8 @@ func BuildStandalone() {
 	params := []string{
 		"-o", outputFile,
 		"-w", "-Os",
-		"-Wl,--subsystem,console",
+		"-Wl,--subsystem,console,--entry,__main_pic",
+		"-nostartfiles",
 		"-static",
 		"-s",
 	}

