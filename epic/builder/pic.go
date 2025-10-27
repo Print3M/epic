@@ -48,13 +48,14 @@ func linkExecutable() string {
 	fmt.Println("[*] Linking PIC payload...")
 
 	// TODO: Change this to payload.exe (check what it does actually on Windows)
-	outputElfFile := fs.OutputPath("payload.elf")
+	outputPeFile := fs.OutputPath("assets", "payload.exe")
+	linkerMapFile := fs.OutputPath("assets", "payload.linker.map")
+	fs.MustCreateDirTree(outputPeFile)
+
 	linkerScriptFile := fs.OutputPath("assets", "linker.ld")
-
 	fs.MustCreateDirTree(linkerScriptFile)
-	fs.MustWriteFile(linkerScriptFile, linkerScriptContent)
 
-	linkerMapFile := fs.OutputPath("payload.linker.map")
+	fs.MustWriteFile(linkerScriptFile, linkerScriptContent)
 
 	objectFiles := getObjectFiles()
 
@@ -62,7 +63,7 @@ func linkExecutable() string {
 		"--gc-sections",
 		"-Map", linkerMapFile,
 		"-T", linkerScriptFile,
-		"-o", outputElfFile,
+		"-o", outputPeFile,
 	}
 
 	params = append(params, objectFiles...)
@@ -74,7 +75,7 @@ func linkExecutable() string {
 
 	fmt.Println("[+] PIC PE linked.")
 
-	return outputElfFile
+	return outputPeFile
 }
 
 func getObjectFiles() []string {
