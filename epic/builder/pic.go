@@ -92,6 +92,10 @@ func getObjectFiles() []string {
 		}
 	}
 
+	for _, o := range objectFiles {
+		fmt.Println("OBJ: ", o)
+	}
+
 	return objectFiles
 }
 

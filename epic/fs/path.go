@@ -2,12 +2,18 @@ package fs
 
 import (
 	"epic/ctx"
-	"io/fs"
 	"log"
+	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 )
+
+func PathExists(path string) bool {
+	_, err := os.Stat(path)
+
+	return !os.IsNotExist(err)
+}
 
 func MustGetAbsPath(path string) string {
 	absPath, err := filepath.Abs(path)
@@ -88,7 +94,7 @@ func GetOutputModules() []Module {
 	*/
 	searchPath := OutputPath("objects", "modules")
 
-	if !fs.ValidPath(searchPath) {
+	if !PathExists(searchPath) {
 		return []Module{}
 	}
 
