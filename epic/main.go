@@ -7,15 +7,25 @@ import (
 	"epic/shell"
 	"fmt"
 	"log"
+	"os"
 )
 
 // TODO:
 // Before run...
 // - Clean output/objects/
 // - Clean output/assets/
+// TODO:
+// - Check standalone with printf() function
+// - Add colors and loading bars in CLI
+// - Add fancy banner (like in DllShimmer)
+// - Print nice output with generated files and what to do next with them
 
 func main() {
 	cli.InitCLI()
+
+	if ctx.Debug {
+		fmt.Println("[DBG] Debug mode enabled")
+	}
 
 	if !ctx.NoPIC {
 		if !shell.IsProgramAvailable(ctx.CompilerPath) {
@@ -51,11 +61,5 @@ func main() {
 		builder.BuildStandalone()
 	}
 
-	// TODO: Print beautiful output with generated files and what to do next.
+	os.Exit(0)
 }
-
-/*
-	TODO:
-		- Add colors and loading bars in CLI
-		- Add fancy banner (like in DllShimmer)
-*/

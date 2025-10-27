@@ -12,9 +12,7 @@ The first option creates smaller paylaod but doesn't provide dead function elimi
 
 The second option creates a little bit larger payload but provides dead function elimination.
 
-Why does the second option create a little bit larger payload? In this approach each function is placed in a separate section. This is the outcome of using `-ffunction-sections` parameter. Each section typically requires alignment (often 16 bytes or more). If you have many small functions, you accumulate significant padding after each one.
-
-TODO: Check if this is really the difference between alignment
+Why does the second option create a little bit larger payload? I'm not sure but I have a feeling. In the second approach each function is placed in a separate section. This is the outcome of using `-ffunction-sections` parameter. Each section typically requires some alignment. If you have many small functions, you accumulate significant padding after each one.
 
 ## Disassembly payload.bin
 
@@ -46,6 +44,10 @@ If you implement `main()` function no matter how hard I tried it's always treate
 Solution to this problem is using `main()` as entry point and implement dummy empty `__main() {}` function. It works, but honestly I wanted my code to be as clean as possible with no dummy functions!
 
 Second solution is not to use `main()` at all. Create a not-main function (e.g. `__main_pic`) and use it as a entry point. It works this way.
+
+## Header files are nasty
+
+Just including default Windows MinGW-w64 header files throws some errors. For exaple, it requires SSE to be enabled to compile successfully and I want it to be disabled. This is the reason why I don't use default Windows headers but include only custom ones.
 
 ## Troubleshooting
 

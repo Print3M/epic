@@ -1,6 +1,7 @@
 package shell
 
 import (
+	"epic/ctx"
 	"fmt"
 	"log"
 	"os/exec"
@@ -13,8 +14,12 @@ func IsProgramAvailable(name string) bool {
 }
 
 func MustExecuteProgram(name string, args ...string) string {
-	// TODO: There's no error when executed with wrong software
 	cmd := exec.Command(name, args...)
+
+	if ctx.Debug {
+		fmt.Println("[DBG] Command executed:", cmd.String())
+	}
+
 	output, err := cmd.CombinedOutput()
 
 	if exitErr, ok := err.(*exec.ExitError); ok {

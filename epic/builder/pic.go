@@ -58,7 +58,6 @@ func linkExecutable() string {
 	objectFiles := getObjectFiles()
 
 	params := []string{
-		// "--print-gc-sections", // TODO: Debug option
 		"--gc-sections",
 		"-Map", linkerMapFile,
 		"-T", linkerScriptFile,
@@ -92,8 +91,10 @@ func getObjectFiles() []string {
 		}
 	}
 
-	for _, o := range objectFiles {
-		fmt.Println("OBJ: ", o)
+	if ctx.Debug {
+		for _, f := range objectFiles {
+			fmt.Println("[DBG] Linking:", f)
+		}
 	}
 
 	return objectFiles
@@ -150,27 +151,27 @@ func buildDirectory(rootDir string, logIndent int) {
 			"--sysroot", rootDir,
 			"-c", file.FullPath,
 			"-o", outputPath,
-			"-nostdlib",
-			"-fPIC",
-			"-nostartfiles",
 			"-Os",
-			"-fno-asynchronous-unwind-tables",
+			"-std=c17",
+			"-fPIC",
+			"-nostdlib",
+			"-nostartfiles",
 			"-ffreestanding",
 			"-fno-builtin",
+			"-nodefaultlibs",
 			"-ffunction-sections",
 			"-fdata-sections",
 			"-fno-ident",
 			"-falign-jumps=1",
-			"-mno-sse",
-			"-mno-mmx",
 			"-mgeneral-regs-only",
-			"-mno-stack-arg-probe",
-			"-mno-red-zone",
 			"-fdiagnostics-color=always",
 			"-fcf-protection=none",
+			"-mno-sse",
+			"-mno-mmx",
+			"-mno-red-zone",
+			"-mno-stack-arg-probe",
 			"-fno-delete-null-pointer-checks",
-			"-std=c17",
-			"-nodefaultlibs",
+			"-fno-asynchronous-unwind-tables",
 		}
 
 		fmt.Println(strings.Repeat("\t", logIndent), file.FullPath)

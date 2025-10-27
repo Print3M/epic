@@ -13,5 +13,5 @@ var (
 	NoStandalone bool
 	NoColors     bool // TODO: Implement colors / disable colors
 	NoBanner     bool // TODO: Implement banner / disable banner
-	Debug        bool // TODO: Implement debug option
+	Debug        bool
 )

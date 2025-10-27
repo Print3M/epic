@@ -51,6 +51,8 @@ func InitCLI() {
 	flag.StringVar(&modules, "m", "", "")
 	flag.StringVar(&modules, "modules", "", "")
 
+	flag.BoolVar(&ctx.Debug, "debug", false, "")
+
 	flag.StringVar(&ctx.CompilerPath, "w64-mingw-gcc", "", "")
 	flag.StringVar(&ctx.LinkerPath, "w64-mingw-ld", "", "")
 	flag.StringVar(&ctx.ObjcopyPath, "w64-mingw-objcopy", "", "")
@@ -70,6 +72,7 @@ func InitCLI() {
 		fmt.Printf("  %-27s %s\n", "--no-pic", "Disable PIC payload building")
 		fmt.Printf("  %-27s %s\n", "--no-loader", "Disable loader building")
 		fmt.Printf("  %-27s %s\n", "--no-standalone", "Disable standalone building")
+		fmt.Printf("  %-27s %s\n", "--debug", "Enable verbose debugging")
 		fmt.Println()
 		fmt.Println("Tool-chain options:")
 		fmt.Printf("  %-27s %s\n", "--w64-mingw-gcc <path>", "Path to Mingw-w64 GCC compiler")
