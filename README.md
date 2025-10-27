@@ -1,5 +1,9 @@
 # EPIC - Extensible Position Independent Code
 
+- Standalone version always include all modules.
+- Switch statements are available.
+- It's modular by default.
+
 ## Interesting Observations
 
 I tried two approaches to linking functions:
@@ -26,12 +30,9 @@ It's possible to generate map of linked sections. Great tool for deep inspection
 
 ## Dead code elimination doesn't work
 
-Dead code elimination doesn't work for:
+Dead code elimination doesn't work for linker output "binary".
 
-1. MinGW PE/COFF target
-2. Linker output "binary"
-
-To hack this I use `gcc` with custom linker script (`ld`) to ELF and then extracting PIC `.text` section using `objdump` to final `payload.bin` output. It works like a charm. This way the final payload is smaller then ever. This is the reason why I don't use MinGW for payload building.
+To hack this I use MinGW-w64 toolchain `gcc` with custom linker script (`ld`) to PE and then extracting PIC `.text` section using `objdump` to final `payload.bin` output. It works like a charm. This way the final payload is smaller then ever.
 
 ## Stack alignment for Win API
 
@@ -52,3 +53,6 @@ Just including default Windows MinGW-w64 header files throws some errors. For ex
 ## Troubleshooting
 
 1. Clean output/ directory.
+2. Test standalone version (more reliable).
+3. Check if you follow EPIC Guidebook.
+4. Run `--debug`.

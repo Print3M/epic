@@ -3,9 +3,6 @@ OUTPUT_FORMAT(pei-x86-64);
 /* Entry function */
 ENTRY(__main_pic);
 
-/* Just to silent false-positive error */
-/* PROVIDE(__main = 0);  */
-
 BASE = 0x00;
 
 SECTIONS

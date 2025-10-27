@@ -53,9 +53,9 @@ func InitCLI() {
 
 	flag.BoolVar(&ctx.Debug, "debug", false, "")
 
-	flag.StringVar(&ctx.CompilerPath, "w64-mingw-gcc", "", "")
-	flag.StringVar(&ctx.LinkerPath, "w64-mingw-ld", "", "")
-	flag.StringVar(&ctx.ObjcopyPath, "w64-mingw-objcopy", "", "")
+	flag.StringVar(&ctx.CompilerPath, "mingw-w64-gcc", "", "")
+	flag.StringVar(&ctx.LinkerPath, "mingw-w64-ld", "", "")
+	flag.StringVar(&ctx.ObjcopyPath, "mingw-w64-objcopy", "", "")
 
 	flag.BoolVar(&ctx.NoPIC, "no-pic", false, "")
 	flag.BoolVar(&ctx.NoLoader, "no-loader", false, "")
@@ -74,10 +74,10 @@ func InitCLI() {
 		fmt.Printf("  %-27s %s\n", "--no-standalone", "Disable standalone building")
 		fmt.Printf("  %-27s %s\n", "--debug", "Enable verbose debugging")
 		fmt.Println()
-		fmt.Println("Tool-chain options:")
-		fmt.Printf("  %-27s %s\n", "--w64-mingw-gcc <path>", "Path to Mingw-w64 GCC compiler")
-		fmt.Printf("  %-27s %s\n", "--w64-mingw-ld <path>", "Path to Mingw-w64 LD linker")
-		fmt.Printf("  %-27s %s\n", "--w64-mingw-objcopy <path>", "Path to Mingw-w64 objcopy tool")
+		fmt.Println("Toolchain options:")
+		fmt.Printf("  %-27s %s\n", "--mingw-w64-gcc <path>", "Path to Mingw-w64 GCC compiler")
+		fmt.Printf("  %-27s %s\n", "--mingw-w64-ld <path>", "Path to Mingw-w64 LD linker")
+		fmt.Printf("  %-27s %s\n", "--mingw-w64-objcopy <path>", "Path to Mingw-w64 objcopy tool")
 		fmt.Println()
 		fmt.Println("Example:")
 		fmt.Println()
@@ -106,12 +106,10 @@ func InitCLI() {
 		ctx.CompilerPath = "x86_64-w64-mingw32-gcc"
 	}
 
-	if ctx.CompilerPath == "" {
-		ctx.CompilerPath = "gcc"
-	}
-
 	if ctx.LinkerPath == "" {
-		ctx.LinkerPath = "ld"
+		// ctx.LinkerPath = "ld"
+		// TODO: Check if this works as previous `ld`
+		ctx.LinkerPath = "x86_64-w64-mingw32-ld"
 	}
 
 	if ctx.ObjcopyPath == "" {

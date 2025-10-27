@@ -19,6 +19,8 @@ import (
 // - Add colors and loading bars in CLI
 // - Add fancy banner (like in DllShimmer)
 // - Print nice output with generated files and what to do next with them
+// - Test standalone with printf()
+// - Add cool README
 
 func main() {
 	cli.InitCLI()

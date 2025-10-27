@@ -36,7 +36,7 @@ func extractTextSection(file string) {
 		fmt.Println(output)
 	}
 
-	fmt.Println("[+] PIC payload extracted from ELF.")
+	fmt.Println("[+] PIC payload extracted from PE.")
 }
 
 func linkExecutable() string {
@@ -47,6 +47,7 @@ func linkExecutable() string {
 	// TODO: Print which modules are being linked...
 	fmt.Println("[*] Linking PIC payload...")
 
+	// TODO: Change this to payload.exe (check what it does actually on Windows)
 	outputElfFile := fs.OutputPath("payload.elf")
 	linkerScriptFile := fs.OutputPath("assets", "linker.ld")
 
@@ -71,7 +72,7 @@ func linkExecutable() string {
 		fmt.Println(output)
 	}
 
-	fmt.Println("[+] PIC ELF linked.")
+	fmt.Println("[+] PIC PE linked.")
 
 	return outputElfFile
 }
@@ -162,6 +163,7 @@ func buildDirectory(rootDir string, logIndent int) {
 			"-ffunction-sections",
 			"-fdata-sections",
 			"-fno-ident",
+			"-fno-jump-tables",
 			"-falign-jumps=1",
 			"-mgeneral-regs-only",
 			"-fdiagnostics-color=always",
