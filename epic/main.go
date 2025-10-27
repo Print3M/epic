@@ -53,14 +53,14 @@ func main() {
 		builder.BuildLoader()
 	}
 
-	if !ctx.NoStandalone {
+	if !ctx.NoNonPIC {
 		if !shell.IsProgramAvailable(ctx.CompilerPath) {
 			log.Fatalf("MinGW-GCC compiler not found: %s\n", ctx.CompilerPath)
 		}
 
 		// Compile standalone
 		fmt.Println()
-		builder.BuildStandalone()
+		builder.BuildNonPIC()
 	}
 
 	os.Exit(0)

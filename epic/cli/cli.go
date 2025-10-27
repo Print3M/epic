@@ -59,7 +59,7 @@ func InitCLI() {
 
 	flag.BoolVar(&ctx.NoPIC, "no-pic", false, "")
 	flag.BoolVar(&ctx.NoLoader, "no-loader", false, "")
-	flag.BoolVar(&ctx.NoStandalone, "no-standalone", false, "")
+	flag.BoolVar(&ctx.NoNonPIC, "no-nonpic", false, "")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: epic -p <path> -o <path> -m pwd,ls\n")
@@ -70,8 +70,8 @@ func InitCLI() {
 		fmt.Printf("  %-27s %s\n", "-o, --output <path>", "Output directory (required)")
 		fmt.Printf("  %-27s %s\n", "-m, --modules <path>", "Included module names (comma-separated list, default: none)")
 		fmt.Printf("  %-27s %s\n", "--no-pic", "Disable PIC payload building")
-		fmt.Printf("  %-27s %s\n", "--no-loader", "Disable loader building")
-		fmt.Printf("  %-27s %s\n", "--no-standalone", "Disable standalone building")
+		fmt.Printf("  %-27s %s\n", "--no-loader", "Disable 'loader.exe' building")
+		fmt.Printf("  %-27s %s\n", "--no-nonpic", "Disable 'nonpic.exe' building")
 		fmt.Printf("  %-27s %s\n", "--debug", "Enable verbose debugging")
 		fmt.Println()
 		fmt.Println("Toolchain options:")
@@ -89,7 +89,7 @@ func InitCLI() {
 
 	flag.Parse()
 
-	if ctx.NoPIC && ctx.NoLoader && ctx.NoStandalone {
+	if ctx.NoPIC && ctx.NoLoader && ctx.NoNonPIC {
 		fmt.Println("You've disabled everything. I can't offer you anything more...")
 		os.Exit(1)
 	}

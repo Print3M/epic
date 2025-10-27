@@ -7,8 +7,8 @@ import (
 	"fmt"
 )
 
-func BuildStandalone() {
-	fmt.Println("[*] Building standalone...")
+func BuildNonPIC() {
+	fmt.Println("[*] Building non-PIC executable...")
 
 	var sourceFiles []string
 
@@ -16,14 +16,15 @@ func BuildStandalone() {
 		sourceFiles = append(sourceFiles, source.FullPath)
 	}
 
-	outputFile := fs.OutputPath("standalone.exe")
+	outputFile := fs.OutputPath("nonpic.exe")
 	params := []string{
 		"-o", outputFile,
 		"-w", "-Os",
 		"-Wl,--subsystem,console,--entry,__main_pic",
 		"-nostartfiles",
 		"-static",
-		"-s",
+		"-ffixed-rbx",
+		"-DNONPIC",
 	}
 	params = append(params, sourceFiles...)
 
@@ -33,5 +34,5 @@ func BuildStandalone() {
 		fmt.Println(output)
 	}
 
-	fmt.Println("[*] Standalone built!")
+	fmt.Println("[*] Non-PIC executable built!")
 }

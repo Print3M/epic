@@ -175,6 +175,8 @@ func buildDirectory(rootDir string, logIndent int) {
 			"-mno-stack-arg-probe",
 			"-fno-delete-null-pointer-checks",
 			"-fno-asynchronous-unwind-tables",
+			"-DPIC",
+			"-ffixed-rbx",
 		}
 
 		fmt.Println(strings.Repeat("\t", logIndent), file.FullPath)

@@ -10,7 +10,7 @@ var (
 	Modules      []string
 	NoPIC        bool
 	NoLoader     bool
-	NoStandalone bool
+	NoNonPIC     bool
 	NoColors     bool // TODO: Implement colors / disable colors
 	NoBanner     bool // TODO: Implement banner / disable banner
 	Debug        bool
