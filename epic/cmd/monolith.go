@@ -4,6 +4,7 @@ import (
 	"epic/cli"
 	"epic/ctx"
 	"epic/monolith"
+	"epic/utils"
 	"fmt"
 	"os"
 
@@ -13,19 +14,16 @@ import (
 var monolithCmd = &cobra.Command{
 	Use:   "monolith <path>",
 	Short: "Build monolithic executable from project",
-	Long:  `Monolith command builds a single monolithic executable from the specified project directory.`,
+	Long:  `Monolith command builds a single monolithic executable from the project directory.`,
 	Args:  cobra.ExactArgs(1),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		ctx.Monolith.ProjectPath = args[0]
 
-		// Validate that path exists
-		fileInfo, err := os.Stat(ctx.Monolith.ProjectPath)
-		if os.IsNotExist(err) {
+		if utils.PathExists(ctx.Monolith.ProjectPath) {
 			return fmt.Errorf("project directory does not exist: %s", ctx.Monolith.ProjectPath)
 		}
 
-		// Validate that it's a directory, not a file
-		if !fileInfo.IsDir() {
+		if !utils.MustIsDir(ctx.Monolith.ProjectPath) {
 			return fmt.Errorf("path must be a directory: %s", ctx.Monolith.ProjectPath)
 		}
 
@@ -42,7 +40,6 @@ var monolithCmd = &cobra.Command{
 			}
 		}
 
-		// Your monolith build logic here
 		monolith.CompileMonolith()
 
 		return nil
@@ -52,6 +49,11 @@ var monolithCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(monolithCmd)
 
-	monolithCmd.Flags().StringVarP(&ctx.Monolith.OutputPath, "output", "o", "", "output path for generated executable")
+	monolithCmd.Flags().StringVarP(&ctx.Monolith.OutputPath, "output", "o", "", "output path for generated executable (required)")
 	monolithCmd.Flags().StringVar(&ctx.MingwGccPath, "mingw-w64-gcc", "", "path to MinGW-w64 GCC")
+
+	// Mark required flags
+	if err := monolithCmd.MarkFlagRequired("output"); err != nil {
+		fmt.Fprintf(os.Stderr, "Error marking flag as required: %v\n", err)
+	}
 }

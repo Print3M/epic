@@ -4,6 +4,7 @@ import (
 	"epic/cli"
 	"epic/ctx"
 	"epic/pic"
+	"epic/utils"
 	"fmt"
 	"os"
 	"strings"
@@ -15,15 +16,17 @@ var linkModules string
 
 var linkCmd = &cobra.Command{
 	Use:   "pic-link <path>",
-	Short: "Link compiled object files",
-	Long:  `Link command processes compiled object files from the specified directory.`,
+	Short: "Link object files into standalone PIC payload",
+	Long:  `Link command links compiled object files (core + modules) into standalone PIC payload.`,
 	Args:  cobra.ExactArgs(1),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		// Validate path exists
 		ctx.LinkPIC.ObjectsPath = args[0]
-		if _, err := os.Stat(ctx.LinkPIC.ObjectsPath); os.IsNotExist(err) {
-			return fmt.Errorf("source path does not exist: %s", ctx.LinkPIC.ObjectsPath)
+
+		if !utils.PathExists(ctx.LinkPIC.ObjectsPath) {
+			return fmt.Errorf("project path does not exist: %s", ctx.LinkPIC.ObjectsPath)
 		}
+
+		utils.ValidateProjectStructure(ctx.LinkPIC.ObjectsPath)
 
 		return nil
 	},
@@ -47,10 +50,9 @@ var linkCmd = &cobra.Command{
 		}
 
 		if linkModules != "" {
-			ctx.LinkPIC.Modules = parseList(linkModules, ",")
+			ctx.LinkPIC.Modules = utils.StringToSlice(linkModules, ",")
 		}
 
-		// Your linking logic here
 		pic.LinkPIC()
 
 		return nil
@@ -61,6 +63,12 @@ func init() {
 	rootCmd.AddCommand(linkCmd)
 
 	linkCmd.Flags().StringVarP(&linkModules, "modules", "m", "", "comma-separated list of modules")
-	linkCmd.Flags().StringVar(&ctx.MingwLdPath, "mingw-w64-ld", "", "path to MinGW-w64 LD")
+	linkCmd.Flags().StringVar(&ctx.MingwLdPath, "mingw-w64-ld", "", "path to MinGW-w64 ld")
 	linkCmd.Flags().StringVar(&ctx.MingwObjcopyPath, "mingw-w64-objcopy", "", "path to MinGW-w64 objcopy")
+	linkCmd.Flags().StringVarP(&ctx.LinkPIC.OutputPath, "output", "o", "", "output path (required)")
+
+	// Mark required flags
+	if err := linkCmd.MarkFlagRequired("output"); err != nil {
+		fmt.Fprintf(os.Stderr, "Error marking flag as required: %v\n", err)
+	}
 }

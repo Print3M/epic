@@ -1,11 +1,44 @@
-package fs
+package utils
 
 import (
-	"errors"
+	"epic/cli"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
+
+func HasExtension(name string, ext string) bool {
+	return strings.EqualFold(filepath.Ext(name), strings.ToLower(ext))
+}
+
+func ReplaceExtension(name, ext string) string {
+	return strings.TrimSuffix(name, filepath.Ext(name)) + ext
+}
+
+func PathExists(path string) bool {
+	_, err := os.Stat(path)
+
+	return !os.IsNotExist(err)
+}
+
+func MustIsDir(path string) bool {
+	elo, err := os.Stat(path)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return elo.IsDir()
+}
+
+func MustGetAbsPath(path string) string {
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return absPath
+}
 
 type FsEntry struct {
 	Name     string
@@ -26,29 +59,6 @@ func rawToFsEntry(entry os.DirEntry, entryPath string) FsEntry {
 		Dir:      filepath.Dir(fullPath),
 		FullPath: fullPath,
 	}
-}
-
-func GetDirectories(path string) []FsEntry {
-	/*
-		Get all directories (no subdirectories) from path.
-	*/
-	rawEntries, err := os.ReadDir(path)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	var entries []FsEntry
-
-	for _, entry := range rawEntries {
-		if !entry.IsDir() {
-			continue
-		}
-
-		entryPath := filepath.Join(path, entry.Name())
-		entries = append(entries, rawToFsEntry(entry, entryPath))
-	}
-
-	return entries
 }
 
 func GetChildDirs(path string) []string {
@@ -108,18 +118,6 @@ func MustCreateDirTree(path string) {
 	}
 }
 
-func MustCopyFile(src string, dst string) {
-	data, err := os.ReadFile(src)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	err = os.WriteFile(dst, data, 0644)
-	if err != nil {
-		log.Fatalln(err)
-	}
-}
-
 func MustWriteFile(path string, content string) {
 	err := os.WriteFile(path, []byte(content), 0644)
 	if err != nil {
@@ -127,8 +125,15 @@ func MustWriteFile(path string, content string) {
 	}
 }
 
-func EntryExists(path string) bool {
-	_, err := os.Stat(path)
+func ValidateProjectStructure(path string) {
+	corePath := filepath.Join(path, "core")
+	if !PathExists(corePath) {
+		cli.LogErrf("Invalid structure. Path doesn't exist: %s", corePath)
+	}
 
-	return !errors.Is(err, os.ErrNotExist)
+	modulesPath := filepath.Join(path, "modules")
+	if !PathExists(modulesPath) {
+		cli.LogErrf("Invalid structure. Path doesn't exist: %s", modulesPath)
+	}
+
 }

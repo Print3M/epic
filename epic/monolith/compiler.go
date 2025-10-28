@@ -3,7 +3,6 @@ package monolith
 import (
 	"epic/cli"
 	"epic/ctx"
-	"epic/fs"
 	"epic/utils"
 	"fmt"
 )
@@ -17,7 +16,7 @@ func CompileMonolith() {
 
 	var sourceFiles []string
 
-	for _, source := range fs.GetFilesByExtension(ctx.Monolith.ProjectPath, ".c") {
+	for _, source := range utils.GetFilesByExtension(ctx.Monolith.ProjectPath, ".c") {
 		sourceFiles = append(sourceFiles, source.FullPath)
 	}
 
@@ -28,7 +27,7 @@ func CompileMonolith() {
 		"-nostartfiles",
 		"-static",
 		"-ffixed-rbx",
-		"-DNONPIC",
+		"-DMONOLITH",
 	}
 	params = append(params, sourceFiles...)
 

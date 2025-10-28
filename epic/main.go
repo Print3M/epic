@@ -6,16 +6,10 @@ import (
 )
 
 // TODO:
-// Before run...
-// - Clean output/objects/
-// - Clean output/assets/
-// TODO:
 // - Check standalone with printf() function
 // - Add fancy banner (like in DllShimmer)
-// - Print nice output with generated files and what to do next with them
-// - Test standalone with printf()
 // - Add cool README
-// - Maybe there should be two modes: build and link? I need some option to just link object files.
+// - Check debug information
 
 func main() {
 	cmd.Execute()

@@ -4,7 +4,6 @@ import (
 	_ "embed"
 	"epic/cli"
 	"epic/ctx"
-	"epic/fs"
 	"epic/utils"
 	"fmt"
 	"log"
@@ -17,11 +16,10 @@ import (
 var loaderContent string
 
 func CompileLoader() {
-	cli.LogInfo("Building loader...")
 
 	var (
 		loaderFile = createLoaderFile()
-		outputFile = ctx.Loader.OutputPath
+		outputFile = filepath.Join(ctx.Loader.OutputPath, "loader.exe")
 	)
 
 	params := []string{
@@ -32,31 +30,32 @@ func CompileLoader() {
 		loaderFile,
 	}
 
+	cli.LogInfo("Compiling loader...")
 	output := utils.MingwGcc(params...)
 	if len(output) > 0 {
 		fmt.Println(output)
 	}
 
-	cli.LogOk("Loader built!")
+	cli.LogOkf("Loader built -> %s", outputFile)
 }
 
 func createLoaderFile() string {
-	cStr, err := binaryToCString(ctx.Loader.PayloadPath)
+	cStr, err := convertBinaryToCString(ctx.Loader.PayloadPath)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	loaderWithPayload := strings.Replace(loaderContent, ":PAYLOAD:", cStr, 1)
 	loaderFile := filepath.Join(ctx.Loader.OutputPath, "assets", "loader.c")
-	fs.MustCreateDirTree(loaderFile)
-	fs.MustWriteFile(loaderFile, loaderWithPayload)
+	utils.MustCreateDirTree(loaderFile)
+	utils.MustWriteFile(loaderFile, loaderWithPayload)
 
-	cli.LogInfo("PIC payload injected into 'loader.c'")
+	cli.LogInfof("PIC payload injected -> %s", loaderFile)
 
 	return loaderFile
 }
 
-func binaryToCString(file string) (string, error) {
+func convertBinaryToCString(file string) (string, error) {
 	data, err := os.ReadFile(file)
 	if err != nil {
 		return "", err

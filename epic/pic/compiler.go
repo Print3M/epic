@@ -4,7 +4,6 @@ import (
 	_ "embed"
 	"epic/cli"
 	"epic/ctx"
-	"epic/fs"
 	"epic/utils"
 	"fmt"
 	"os"
@@ -26,8 +25,7 @@ func compileCore() {
 	*/
 	cli.LogInfo("Compiling core...")
 
-	coreDir := filepath.Join(ctx.CompilePIC.ProjectPath, "core")
-	__compileDirectory(coreDir)
+	__compileProjectDirectory("core")
 
 	cli.LogOk("Core compiled!")
 }
@@ -36,49 +34,54 @@ func compileModules() {
 	/*
 		Compile "project/modules/<name>/**" directories.
 	*/
-	modules := fs.GetChildDirs(filepath.Join(ctx.CompilePIC.ProjectPath, "modules"))
+	modules := utils.GetChildDirs(filepath.Join(ctx.CompilePIC.ProjectPath, "modules"))
 
 	for _, module := range modules {
-		if len(ctx.CompilePIC.Modules) > 0 && !slices.Contains(ctx.CompilePIC.Modules, module) {
+		if !slices.Contains(ctx.CompilePIC.Modules, module) {
 			continue
 		}
 
-		cli.LogInfof("Compiling module: %s", module)
+		cli.LogInfof("Compiling '%s' module...", module)
 
-		moduleDir := filepath.Join(ctx.CompilePIC.ProjectPath, "modules", module)
-		__compileDirectory(moduleDir)
+		moduleDir := filepath.Join("modules", module)
+		__compileProjectDirectory(moduleDir)
 
-		cli.LogOkf("Module compiled: %s", module)
+		cli.LogOkf("Module '%s' compiled!", module)
 
 	}
 
 	// TODO: Add unknown module error
 }
 
-func __compileDirectory(inputPath string) {
+func __compileProjectDirectory(projectDir string) {
 	/*
 		Compile all source files from :inputPath and put it into output/objects/**
 		directories. The output structure of directory is mimicking :inputPath.
 	*/
 
-	absInputPath := fs.MustGetAbsPath(inputPath)
+	absProjectDir := utils.MustGetAbsPath(filepath.Join(ctx.CompilePIC.ProjectPath, projectDir))
 
-	for _, file := range fs.GetFilesByExtension(inputPath, ".c") {
-		relPath, err := filepath.Rel(absInputPath, file.FullPath)
+	for _, file := range utils.GetFilesByExtension(absProjectDir, ".c") {
+		relPath, err := filepath.Rel(absProjectDir, file.FullPath)
 		if err != nil {
 			cli.LogErrf("%v", err)
 			os.Exit(1)
 		}
 
-		objectFileName := fs.ReplaceExtension(file.Name, ".o")
-		// TODO: Fix this fucking path
-		outputFile := filepath.Join(ctx.CompilePIC.OutputPath, "objects", filepath.Dir(relPath), objectFileName)
+		inputFile := filepath.Join(ctx.CompilePIC.ProjectPath, projectDir, file.Name)
+		outputFile := filepath.Join(
+			ctx.CompilePIC.OutputPath,
+			projectDir,
+			filepath.Dir(relPath),
+			utils.ReplaceExtension(file.Name, ".o"))
 
-		fs.MustCreateDirTree(outputFile)
+		utils.MustCreateDirTree(outputFile)
+
+		cli.LogInfof(" ‣ %s -> %s", inputFile, outputFile)
 
 		// TODO: Check which parameters are actually necessary (some of them are linker params)
 		params := []string{
-			"--sysroot", inputPath,
+			"--sysroot", projectDir,
 			"-c", file.FullPath,
 			"-o", outputFile,
 			"-Os",
@@ -106,9 +109,6 @@ func __compileDirectory(inputPath string) {
 			"-DPIC",
 			"-ffixed-rbx",
 		}
-
-		// TODO: Add destination
-		cli.LogInfof(" - Compiling: %s", filepath.Join(inputPath, relPath))
 
 		output := utils.MingwGcc(params...)
 		if len(output) > 0 {

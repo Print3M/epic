@@ -4,6 +4,7 @@ import (
 	"epic/cli"
 	"epic/ctx"
 	"epic/pic"
+	"epic/utils"
 	"fmt"
 	"os"
 	"strings"
@@ -15,20 +16,17 @@ var compileModules string
 
 var compileCmd = &cobra.Command{
 	Use:   "pic-compile <path>",
-	Short: "Compile source code with specified modules",
-	Long:  `Compile command processes source code from the specified directory and generates output files.`,
+	Short: "Compile PIC project into object files",
+	Long:  `Compile command compiles source code from the project directory and generates object files.`,
 	Args:  cobra.ExactArgs(1),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		// Validate required flags
-		if ctx.CompilePIC.OutputPath == "" {
-			return fmt.Errorf("--output/-o flag is required")
+		ctx.CompilePIC.ProjectPath = args[0]
+
+		if !utils.PathExists(ctx.CompilePIC.ProjectPath) {
+			return fmt.Errorf("project path does not exist: %s", ctx.CompilePIC.ProjectPath)
 		}
 
-		// Validate path exists
-		ctx.CompilePIC.ProjectPath = args[0]
-		if _, err := os.Stat(ctx.CompilePIC.ProjectPath); os.IsNotExist(err) {
-			return fmt.Errorf("source path does not exist: %s", ctx.CompilePIC.ProjectPath)
-		}
+		utils.ValidateProjectStructure(ctx.CompilePIC.ProjectPath)
 
 		return nil
 	},
@@ -46,12 +44,10 @@ var compileCmd = &cobra.Command{
 			}
 		}
 
-		// Parse modules if provided
 		if compileModules != "" {
-			ctx.CompilePIC.Modules = parseList(compileModules, ",")
+			ctx.CompilePIC.Modules = utils.StringToSlice(compileModules, ",")
 		}
 
-		// Your compilation logic here
 		pic.CompilePIC()
 
 		return nil
@@ -62,7 +58,7 @@ func init() {
 	rootCmd.AddCommand(compileCmd)
 
 	compileCmd.Flags().StringVarP(&compileModules, "modules", "m", "", "comma-separated list of modules")
-	compileCmd.Flags().StringVarP(&ctx.CompilePIC.OutputPath, "output", "o", "", "path to output directory (required)")
+	compileCmd.Flags().StringVarP(&ctx.CompilePIC.OutputPath, "output", "o", "", "output path (required)")
 	compileCmd.Flags().StringVar(&ctx.MingwGccPath, "mingw-w64-gcc", "", "path to MinGW-w64 GCC")
 
 	// Mark required flags

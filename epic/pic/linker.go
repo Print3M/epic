@@ -4,11 +4,11 @@ import (
 	_ "embed"
 	"epic/cli"
 	"epic/ctx"
-	"epic/fs"
 	"epic/utils"
 	"fmt"
 	"path/filepath"
 	"slices"
+	"strings"
 )
 
 //go:embed assets/linker.ld
@@ -24,31 +24,34 @@ func linkExecutable() string {
 	/*
 		Using ld linker link all object files
 	*/
+	if modules := getLinkedModules(); len(modules) == 0 {
+		cli.LogInfo("Linking PIC core (no modules)")
 
-	// TODO:
-	// cli.LogInfof("Linking PIC core + modules (%s)", strings.Join(modules, ","))
+	} else {
+		cli.LogInfof("Linking PIC core + modules (%s)", strings.Join(modules, ","))
+	}
 
-	outputPeFile := filepath.Join(ctx.LinkPIC.OutputPath, "linking", "payload.exe")
-	linkerMapFile := filepath.Join(ctx.LinkPIC.OutputPath, "linking", "payload.linker.map")
-	linkerScriptFile := filepath.Join(ctx.LinkPIC.OutputPath, "linking", "linker.ld")
-	fs.MustCreateDirTree(linkerScriptFile)
+	assetsDir := filepath.Join(ctx.LinkPIC.OutputPath, "assets")
+	utils.MustCreateDirTree(assetsDir)
 
-	fs.MustWriteFile(linkerScriptFile, linkerScriptContent)
+	outputExecutable := filepath.Join(assetsDir, "pic.exe")
+	linkerMapFile := filepath.Join(assetsDir, "payload.linker.map")
+	linkerScriptFile := filepath.Join(assetsDir, "linker.ld")
+
+	utils.MustWriteFile(linkerScriptFile, linkerScriptContent)
 
 	objectFiles := getObjectFiles()
 
-	if ctx.Debug {
-		cli.LogDbg("Linking:")
-		for _, f := range objectFiles {
-			cli.LogDbgf(" - Linking: %s", f)
-		}
+	for _, f := range objectFiles {
+		cli.LogInfof(" ‣ %s ", f)
+
 	}
 
 	params := []string{
 		"--gc-sections",
 		"-Map", linkerMapFile,
 		"-T", linkerScriptFile,
-		"-o", outputPeFile,
+		"-o", outputExecutable,
 		"--image-base=0x00",
 	}
 
@@ -59,9 +62,9 @@ func linkExecutable() string {
 		fmt.Println(output)
 	}
 
-	cli.LogOk("PIC-PE linked!")
+	cli.LogOkf("PIC linked -> %s", outputExecutable)
 
-	return outputPeFile
+	return outputExecutable
 }
 
 func getObjectFiles() []string {
@@ -69,19 +72,15 @@ func getObjectFiles() []string {
 
 	// Collecting core
 	corePath := filepath.Join(ctx.LinkPIC.ObjectsPath, "core")
-	for _, f := range fs.GetFilesByExtension(corePath, ".o") {
+	for _, f := range utils.GetFilesByExtension(corePath, ".o") {
 		objectFiles = append(objectFiles, f.FullPath)
 	}
 
 	// Collecting modules
-	modulesPath := filepath.Join(ctx.LinkPIC.ObjectsPath, "modules")
-	for _, module := range fs.GetChildDirs(modulesPath) {
-		if !slices.Contains(ctx.LinkPIC.Modules, module) {
-			continue
-		}
+	for _, module := range getLinkedModules() {
+		path := filepath.Join(ctx.LinkPIC.ObjectsPath, "modules", module)
 
-		path := filepath.Join(ctx.LinkPIC.ObjectsPath, module)
-		for _, f := range fs.GetFilesByExtension(path, ".o") {
+		for _, f := range utils.GetFilesByExtension(path, ".o") {
 			objectFiles = append(objectFiles, f.FullPath)
 		}
 	}
@@ -89,11 +88,24 @@ func getObjectFiles() []string {
 	return objectFiles
 }
 
+func getLinkedModules() []string {
+	var modules []string
+	path := filepath.Join(ctx.LinkPIC.ObjectsPath, "modules")
+
+	for _, m := range utils.GetChildDirs(path) {
+		if slices.Contains(ctx.LinkPIC.Modules, m) {
+			modules = append(modules, m)
+		}
+	}
+
+	return modules
+}
+
 func extractTextSection(file string) {
 	/*
 		Using objcopy tool extract .text section from compiled executable.
 	*/
-	cli.LogInfo("Extracting '.text' section from PIC-PE...")
+	cli.LogInfo("Extracting '.text' section...")
 	outputFile := filepath.Join(ctx.LinkPIC.OutputPath, "payload.bin")
 
 	output := utils.MingwObjcopy("-O", "binary", "--only-section=.text", file, outputFile)
@@ -101,5 +113,5 @@ func extractTextSection(file string) {
 		fmt.Println(output)
 	}
 
-	cli.LogOk("PIC payload extracted!")
+	cli.LogOkf("PIC payload extracted -> %s", outputFile)
 }

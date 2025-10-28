@@ -1,6 +1,6 @@
 # EPIC - Extensible Position Independent Code
 
-EPIC (Extensible Position Independent Code) – stealth implant development and shellcode building framework.
+EPIC (Extensible Position Independent Code) – PIC implant development and shellcode building framework with modularity in mind.
 
 - Monolith (standalone EXE) version always include all modules.
 - Switch statements are available.
@@ -9,6 +9,8 @@ EPIC (Extensible Position Independent Code) – stealth implant development and 
 - CPU-based global variable with no R/W memory allocations. Built-in support for global context via dedicated CPU register.
 - String literals supported: "TEST and L"TEST".
 - No code generation and hidden quirks.
+- Built-in dead-code elimination - smallest payloads on the market.
+- One code base for debugging and production
 
 ## Interesting Observations
 
