@@ -1,9 +1,11 @@
 # EPIC - Extensible Position Independent Code
 
-- Non-PIC version always include all modules.
+EPIC (Extensible Position Independent Code) – stealth implant development and shellcode building framework.
+
+- Monolith (standalone EXE) version always include all modules.
 - Switch statements are available.
 - It's modular by default.
-- PIC and non-PIC code in the same repository.
+- PIC and monolith code in the same repository.
 - CPU-based global variable with no R/W memory allocations. Built-in support for global context via dedicated CPU register.
 - String literals supported: "TEST and L"TEST".
 - No code generation and hidden quirks.

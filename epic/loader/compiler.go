@@ -1,37 +1,38 @@
-package builder
+package loader
 
 import (
 	_ "embed"
 	"epic/cli"
 	"epic/ctx"
 	"epic/fs"
-	"epic/shell"
+	"epic/utils"
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
 //go:embed assets/loader.c
 var loaderContent string
 
-func BuildLoader() {
+func CompileLoader() {
 	cli.LogInfo("Building loader...")
 
 	var (
 		loaderFile = createLoaderFile()
-		outputFile = fs.OutputPath("loader.exe")
+		outputFile = ctx.Loader.OutputPath
 	)
 
 	params := []string{
-		"--sysroot", ctx.OutputPath,
+		// "--sysroot", ctx.OutputPath,
 		"-o", outputFile,
 		"-static",
 		"-s",
 		loaderFile,
 	}
 
-	output := shell.MustExecuteProgram(ctx.CompilerPath, params...)
+	output := utils.MingwGcc(params...)
 	if len(output) > 0 {
 		fmt.Println(output)
 	}
@@ -40,17 +41,17 @@ func BuildLoader() {
 }
 
 func createLoaderFile() string {
-	cStr, err := binaryToCString(fs.OutputPath("payload.bin"))
+	cStr, err := binaryToCString(ctx.Loader.PayloadPath)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	loaderWithPayload := strings.Replace(loaderContent, ":PAYLOAD:", cStr, 1)
-	loaderFile := fs.OutputPath("assets", "loader.c")
+	loaderFile := filepath.Join(ctx.Loader.OutputPath, "assets", "loader.c")
 	fs.MustCreateDirTree(loaderFile)
 	fs.MustWriteFile(loaderFile, loaderWithPayload)
 
-	cli.LogInfo("PIC payload injected into loader template")
+	cli.LogInfo("PIC payload injected into 'loader.c'")
 
 	return loaderFile
 }

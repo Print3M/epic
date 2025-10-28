@@ -51,6 +51,29 @@ func GetDirectories(path string) []FsEntry {
 	return entries
 }
 
+func GetChildDirs(path string) []string {
+	/*
+		Simple return names of child directories of the provided path.
+	*/
+	rawEntries, err := os.ReadDir(path)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var dirs []string
+
+	for _, entry := range rawEntries {
+		if !entry.IsDir() {
+			continue
+		}
+
+		dirs = append(dirs, entry.Name())
+	}
+
+	return dirs
+
+}
+
 func GetFilesByExtension(path string, ext string) []FsEntry {
 	/*
 		Get all files from path and all subdirectories by extension.

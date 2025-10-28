@@ -1,12 +1,9 @@
 package fs
 
 import (
-	"epic/ctx"
 	"log"
 	"os"
 	"path/filepath"
-	"slices"
-	"strings"
 )
 
 func PathExists(path string) bool {
@@ -25,23 +22,19 @@ func MustGetAbsPath(path string) string {
 }
 
 func OutputPath(parts ...string) string {
-	allParts := append([]string{ctx.OutputPath}, parts...)
+	// allParts := append([]string{ctx.OutputPath}, parts...)
 
-	return filepath.Join(allParts...)
+	return filepath.Join(parts...)
 }
 
 func ProjectPath(parts ...string) string {
-	allParts := append([]string{ctx.ProjectPath}, parts...)
+	// allParts := append([]string{ctx.ProjectPath}, parts...)
 
-	return filepath.Join(allParts...)
+	return filepath.Join(parts...)
 }
 
-type Module struct {
-	Name string
-	Path string
-}
-
-func getModules(searchPath string) []Module {
+/*
+func xGetModules(searchPath string) []Module {
 	entries := GetDirectories(searchPath)
 
 	var modules []Module
@@ -79,19 +72,13 @@ func getModules(searchPath string) []Module {
 	return modules
 }
 
-func GetProjectModules() []Module {
-	/*
-		Each module is a separate directory in "project/modules/<module>/'
-	*/
+func xGetProjectModules() []Module {
 	searchPath := ProjectPath("modules")
 
 	return getModules(searchPath)
 }
 
-func GetOutputModules() []Module {
-	/*
-		Each module is a separate directory in "output/objects/modules/<module>/'
-	*/
+func xGetOutputModules() []Module {
 	searchPath := OutputPath("objects", "modules")
 
 	if !PathExists(searchPath) {
@@ -100,3 +87,4 @@ func GetOutputModules() []Module {
 
 	return getModules(searchPath)
 }
+*/

@@ -32,6 +32,10 @@ func LogErr(msg string) {
 	fmt.Println()
 }
 
+func LogErrf(format string, a ...any) {
+	LogErr(fmt.Sprintf(format, a...))
+}
+
 func LogInfo(msg string) {
 	style := lipgloss.NewStyle().
 		Bold(true).
@@ -42,6 +46,10 @@ func LogInfo(msg string) {
 
 	fmt.Printf("%s%s %s", style.Render("INFO"), getTime(), msg)
 	fmt.Println()
+}
+
+func LogInfof(format string, a ...any) {
+	LogInfo(fmt.Sprintf(format, a...))
 }
 
 func LogOk(msg string) {
@@ -56,6 +64,10 @@ func LogOk(msg string) {
 	fmt.Println()
 }
 
+func LogOkf(format string, a ...any) {
+	LogOk(fmt.Sprintf(format, a...))
+}
+
 func LogDbg(msg string) {
 	style := lipgloss.NewStyle().
 		Bold(true).
@@ -66,4 +78,8 @@ func LogDbg(msg string) {
 
 	fmt.Printf("%s%s %s", style.Render("DBG"), getTime(), msg)
 	fmt.Println()
+}
+
+func LogDbgf(format string, a ...any) {
+	LogDbg(fmt.Sprintf(format, a...))
 }
