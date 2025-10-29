@@ -16,5 +16,6 @@ SECTIONS
         *(.text*)
         *(.rdata)
         *(.rdata*)
+        KEEP(*(.text$main_pic))
     }
 }

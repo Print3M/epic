@@ -61,7 +61,7 @@ func __compileProjectDirectory(projectDir string) {
 
 	absProjectDir := utils.MustGetAbsPath(filepath.Join(ctx.CompilePIC.ProjectPath, projectDir))
 
-	for _, file := range utils.GetFilesByExtension(absProjectDir, ".c") {
+	for _, file := range utils.GetFilesByExtensions(absProjectDir, []string{".c", ".cpp"}) {
 		relPath, err := filepath.Rel(absProjectDir, file.FullPath)
 		if err != nil {
 			cli.LogErrf("%v", err)
@@ -85,7 +85,6 @@ func __compileProjectDirectory(projectDir string) {
 			"-c", file.FullPath,
 			"-o", outputFile,
 			"-Os",
-			"-std=c17",
 			"-fPIC",
 			"-nostdlib",
 			"-nostdinc",
@@ -96,7 +95,6 @@ func __compileProjectDirectory(projectDir string) {
 			"-ffunction-sections",
 			"-fdata-sections",
 			"-fno-ident",
-			"-fno-rtti",
 			"-fno-jump-tables",
 			"-falign-jumps=1",
 			"-mgeneral-regs-only",
@@ -112,6 +110,13 @@ func __compileProjectDirectory(projectDir string) {
 			"-ffixed-rbx",
 			"-I", filepath.Join(ctx.CompilePIC.ProjectPath, "include"),
 			"-I", ctx.CompilePIC.ProjectPath,
+		}
+
+		switch filepath.Ext(file.FullPath) {
+		case ".cpp":
+			params = append(params, "-std=c++20", "-fno-rtti")
+		default:
+			params = append(params, "-std=c17")
 		}
 
 		output := utils.MingwGcc(params...)

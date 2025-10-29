@@ -56,6 +56,10 @@ func linkExecutable() string {
 		"--image-base=0x00",
 	}
 
+	if ctx.Debug {
+		params = append(params, "--print-gc-sections")
+	}
+
 	params = append(params, objectFiles...)
 
 	output := utils.MingwLd(params...)
@@ -74,7 +78,7 @@ func getObjectFiles() []string {
 
 	// Collecting core
 	corePath := filepath.Join(ctx.LinkPIC.ObjectsPath, "core")
-	for _, f := range utils.GetFilesByExtension(corePath, ".o") {
+	for _, f := range utils.GetFilesByExtensions(corePath, []string{".o"}) {
 		objectFiles = append(objectFiles, f.FullPath)
 	}
 
@@ -82,7 +86,7 @@ func getObjectFiles() []string {
 	for _, module := range getLinkedModules() {
 		path := filepath.Join(ctx.LinkPIC.ObjectsPath, "modules", module)
 
-		for _, f := range utils.GetFilesByExtension(path, ".o") {
+		for _, f := range utils.GetFilesByExtensions(path, []string{".o"}) {
 			objectFiles = append(objectFiles, f.FullPath)
 		}
 	}

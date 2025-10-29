@@ -18,7 +18,7 @@ func CompileMonolith() {
 
 	var sourceFiles []string
 
-	for _, source := range utils.GetFilesByExtension(ctx.Monolith.ProjectPath, ".c") {
+	for _, source := range utils.GetFilesByExtensions(ctx.Monolith.ProjectPath, []string{".c", ".cpp"}) {
 		sourceFiles = append(sourceFiles, source.FullPath)
 	}
 

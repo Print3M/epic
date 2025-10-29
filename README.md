@@ -1,6 +1,6 @@
 # EPIC - Extensible Position Independent Code
 
-EPIC (Extensible Position Independent Code) – PIC implant development and shellcode building framework with modularity in mind.
+EPIC (Extensible Position Independent Code) – implant development and shellcode building framework with modularity in mind.
 
 - Monolith (non-PIC EXE) version always include all modules.
 - Switch statements are available.
@@ -12,6 +12,7 @@ EPIC (Extensible Position Independent Code) – PIC implant development and shel
 - Built-in dead-code elimination - smallest payloads on the market.
 - One code base for debugging and production
 - Extremely predictable PIC code, no magic, no implicit code includes.
+- C / C++ support. It automatically detects source files: `.c` and `.cpp`. You can mix them together but keep in mind that C++ does name mangling. If you want to export some C++ function to C code or otherway around you need to use `extern "C"` in the header stub of this function.
 
 ## Interesting Observations
 

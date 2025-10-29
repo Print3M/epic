@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -84,7 +85,7 @@ func GetChildDirs(path string) []string {
 
 }
 
-func GetFilesByExtension(path string, ext string) []FsEntry {
+func GetFilesByExtensions(path string, exts []string) []FsEntry {
 	/*
 		Get all files from path and all subdirectories by extension.
 	*/
@@ -94,8 +95,10 @@ func GetFilesByExtension(path string, ext string) []FsEntry {
 		if err != nil {
 			return err
 		}
-
-		if entry.IsDir() || !HasExtension(entry.Name(), ext) {
+		if entry.IsDir() {
+			return nil
+		}
+		if !slices.Contains(exts, filepath.Ext(entryPath)) {
 			return nil
 		}
 

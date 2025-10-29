@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func IsProgramAvailable(name string) bool {
@@ -16,7 +17,14 @@ func IsProgramAvailable(name string) bool {
 }
 
 func MustExecuteProgram(name string, args ...string) string {
-	cmd := exec.Command(name, args...)
+	var validArgs []string
+	for _, arg := range args {
+		if len(strings.TrimSpace(arg)) > 0 {
+			validArgs = append(validArgs, arg)
+		}
+	}
+
+	cmd := exec.Command(name, validArgs...)
 
 	if ctx.Debug {
 		cli.LogDbg("Command executed:")
