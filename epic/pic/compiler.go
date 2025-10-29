@@ -96,6 +96,7 @@ func __compileProjectDirectory(projectDir string) {
 			"-ffunction-sections",
 			"-fdata-sections",
 			"-fno-ident",
+			"-fno-rtti",
 			"-fno-jump-tables",
 			"-falign-jumps=1",
 			"-mgeneral-regs-only",

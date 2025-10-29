@@ -6,6 +6,8 @@
 
 typedef struct {
 	const char *name;
+	void *start;
+	void *end;
 } Context;
 
 void child_func() {
@@ -14,10 +16,10 @@ void child_func() {
 }
 
 void main_pic() {
-	Context ctx = {
-		.name = "calc.exe"
-	};
+	Context ctx;
 	SAVE_GLOBAL(ctx);
+
+	ctx.name = "calc.exe";
 
 	child_func();
 }
