@@ -40,6 +40,8 @@ func CompileMonolith() {
 		"-static",
 		"-ffixed-rbx",
 		"-DMONOLITH",
+		"-I", filepath.Join(ctx.Monolith.ProjectPath, "include"),
+		"-I", ctx.Monolith.ProjectPath,
 	}
 	params = append(params, sourceFiles...)
 

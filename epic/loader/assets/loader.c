@@ -21,7 +21,7 @@ int main(void) {
 	
 	rv = VirtualProtect(shellcode, PAYLOAD_LEN, PAGE_EXECUTE_READ, &oldprotect);
 
-	printf("[+] Permission changed (RX)\n");
+	printf("[+] RX permissions granted\n");
 
 	printf("[+] Jumping to shellcode: 0x%lp\n", shellcode);
 

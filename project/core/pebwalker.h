@@ -2,7 +2,6 @@
 #include <win32/windows.h>
 #include <epic.h>
 
-typedef UINT(WINAPI *WinExecPtr)(LPCSTR lpCmdLine, UINT uCmdShow);
+HMODULE GetDllFromMemory(const wchar_t *name);
 
-PIMAGE_DOS_HEADER GetDllFromMemory(const wchar_t *name);
-void *GetProcAddr(PIMAGE_DOS_HEADER dll, const char *funcName);
+void *GetProcAddr(HMODULE dll, const char *funcName);
