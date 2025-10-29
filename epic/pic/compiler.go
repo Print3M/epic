@@ -109,6 +109,8 @@ func __compileProjectDirectory(projectDir string) {
 			"-fno-asynchronous-unwind-tables",
 			"-DPIC",
 			"-ffixed-rbx",
+			"-I", filepath.Join(ctx.CompilePIC.ProjectPath, "include"),
+			"-I", ctx.CompilePIC.ProjectPath,
 		}
 
 		output := utils.MingwGcc(params...)
