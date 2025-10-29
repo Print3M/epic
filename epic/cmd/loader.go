@@ -39,10 +39,9 @@ var loaderCmd = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if ctx.Debug {
-			cli.LogDbgf("Generating loader for payload: %s", ctx.Loader.PayloadPath)
-			if ctx.Loader.OutputPath != "" {
-				cli.LogDbgf("Output: %s", ctx.Loader.OutputPath)
-			}
+			cli.LogDbgf("Payload path: %s", ctx.Loader.PayloadPath)
+			cli.LogDbgf("Output path: %s", ctx.Loader.OutputPath)
+
 			if ctx.MingwGccPath != "" {
 				cli.LogDbgf("MinGW-w64 GCC: %s", ctx.MingwGccPath)
 			}

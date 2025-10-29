@@ -2,7 +2,7 @@
 
 EPIC (Extensible Position Independent Code) – PIC implant development and shellcode building framework with modularity in mind.
 
-- Monolith (standalone EXE) version always include all modules.
+- Monolith (non-PIC EXE) version always include all modules.
 - Switch statements are available.
 - It's modular by default.
 - PIC and monolith code in the same repository.
@@ -11,6 +11,7 @@ EPIC (Extensible Position Independent Code) – PIC implant development and shel
 - No code generation and hidden quirks.
 - Built-in dead-code elimination - smallest payloads on the market.
 - One code base for debugging and production
+- Extremely predictable PIC code, no magic, no implicit code includes.
 
 ## Interesting Observations
 
@@ -56,11 +57,11 @@ Second solution is not to use `main()` at all. Create a not-main function (e.g. 
 
 ## Header files are nasty
 
-Just including default Windows MinGW-w64 header files throws some errors. For exaple, it requires SSE to be enabled to compile successfully and I want it to be disabled. This is the reason why I don't use default Windows headers but include only custom ones.
+Just including default Windows MinGW-w64 header files throws some errors. For example, it requires SSE to be enabled to compile successfully and I want it to be disabled. This is the reason why I don't use default Windows headers but include only custom ones.
 
 ## Troubleshooting
 
 1. Clean output/ directory.
-2. Test standalone version (more reliable).
+2. Test monolith version (more reliable).
 3. Check if you follow EPIC Guidebook.
 4. Run `--debug`.

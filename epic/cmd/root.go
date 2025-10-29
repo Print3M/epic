@@ -14,6 +14,10 @@ var rootCmd = &cobra.Command{
 	Long:    `EPIC is a CLI tool for automating modular PIC implant development and building process.`,
 	Version: ctx.Version,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if ctx.NoColor {
+			cli.DisableColors()
+		}
+
 		if !ctx.NoBanner {
 			cli.PrintBanner()
 		}

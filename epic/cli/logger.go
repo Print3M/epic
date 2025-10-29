@@ -40,7 +40,7 @@ func LogInfo(msg string) {
 	style := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("15")).
-		Background(lipgloss.Color("12")).
+		Background(lipgloss.Color("32")).
 		Align(lipgloss.Center).
 		Width(10)
 
@@ -72,7 +72,7 @@ func LogDbg(msg string) {
 	style := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("15")).
-		Background(lipgloss.Color("12")).
+		Background(lipgloss.Color("32")).
 		Align(lipgloss.Center).
 		Width(10)
 

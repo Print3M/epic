@@ -31,21 +31,18 @@ var compileCmd = &cobra.Command{
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if ctx.Debug {
-			cli.LogDbgf("Compiling from: %s", ctx.CompilePIC.ProjectPath)
-			cli.LogDbgf("Output: %s", ctx.CompilePIC.OutputPath)
+		if compileModules != "" {
+			ctx.CompilePIC.Modules = utils.StringToSlice(compileModules, ",")
+		}
 
-			if len(ctx.CompilePIC.Modules) > 0 {
-				cli.LogDbgf("Modules: %s", strings.Join(ctx.CompilePIC.Modules, ","))
-			}
+		if ctx.Debug {
+			cli.LogDbgf("Project path: %s", ctx.CompilePIC.ProjectPath)
+			cli.LogDbgf("Output path: %s", ctx.CompilePIC.OutputPath)
+			cli.LogDbgf("Modules: %s", strings.Join(ctx.CompilePIC.Modules, ","))
 
 			if ctx.MingwGccPath != "" {
 				cli.LogDbgf("MinGW-w64 GCC: %s", ctx.MingwGccPath)
 			}
-		}
-
-		if compileModules != "" {
-			ctx.CompilePIC.Modules = utils.StringToSlice(compileModules, ",")
 		}
 
 		pic.CompilePIC()

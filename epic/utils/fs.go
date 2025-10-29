@@ -112,7 +112,7 @@ func GetFilesByExtension(path string, ext string) []FsEntry {
 }
 
 func MustCreateDirTree(path string) {
-	err := os.MkdirAll(filepath.Dir(path), 0755)
+	err := os.MkdirAll(path, 0755)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -128,12 +128,13 @@ func MustWriteFile(path string, content string) {
 func ValidateProjectStructure(path string) {
 	corePath := filepath.Join(path, "core")
 	if !PathExists(corePath) {
-		cli.LogErrf("Invalid structure. Path doesn't exist: %s", corePath)
+		cli.LogErrf("Invalid project structure. Path doesn't exist: %s", corePath)
+		os.Exit(1)
 	}
 
 	modulesPath := filepath.Join(path, "modules")
 	if !PathExists(modulesPath) {
-		cli.LogErrf("Invalid structure. Path doesn't exist: %s", modulesPath)
+		cli.LogErrf("Invalid project structure. Path doesn't exist: %s", modulesPath)
+		os.Exit(1)
 	}
-
 }

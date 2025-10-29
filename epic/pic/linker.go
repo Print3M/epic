@@ -17,6 +17,7 @@ var linkerScriptContent string
 func LinkPIC() {
 	linkedExecutable := linkExecutable()
 
+	fmt.Println()
 	extractTextSection(linkedExecutable)
 }
 
@@ -34,7 +35,7 @@ func linkExecutable() string {
 	assetsDir := filepath.Join(ctx.LinkPIC.OutputPath, "assets")
 	utils.MustCreateDirTree(assetsDir)
 
-	outputExecutable := filepath.Join(assetsDir, "pic.exe")
+	outputExecutable := filepath.Join(assetsDir, "payload.exe")
 	linkerMapFile := filepath.Join(assetsDir, "payload.linker.map")
 	linkerScriptFile := filepath.Join(assetsDir, "linker.ld")
 
@@ -63,6 +64,7 @@ func linkExecutable() string {
 	}
 
 	cli.LogOkf("PIC linked -> %s", outputExecutable)
+	cli.LogOkf("Linking artifacts saved -> %s", assetsDir)
 
 	return outputExecutable
 }
@@ -105,7 +107,7 @@ func extractTextSection(file string) {
 	/*
 		Using objcopy tool extract .text section from compiled executable.
 	*/
-	cli.LogInfo("Extracting '.text' section...")
+	cli.LogInfof("Extracting '.text' section from %s", file)
 	outputFile := filepath.Join(ctx.LinkPIC.OutputPath, "payload.bin")
 
 	output := utils.MingwObjcopy("-O", "binary", "--only-section=.text", file, outputFile)

@@ -19,7 +19,7 @@ var monolithCmd = &cobra.Command{
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		ctx.Monolith.ProjectPath = args[0]
 
-		if utils.PathExists(ctx.Monolith.ProjectPath) {
+		if !utils.PathExists(ctx.Monolith.ProjectPath) {
 			return fmt.Errorf("project directory does not exist: %s", ctx.Monolith.ProjectPath)
 		}
 
@@ -31,10 +31,9 @@ var monolithCmd = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if ctx.Debug {
-			cli.LogDbgf("Building monolith: %s", ctx.Monolith.ProjectPath)
-			if ctx.Monolith.OutputPath != "" {
-				cli.LogDbgf("Output: %s", ctx.Monolith.OutputPath)
-			}
+			cli.LogDbgf("Project path: %s", ctx.Monolith.ProjectPath)
+			cli.LogDbgf("Output path: %s", ctx.Monolith.OutputPath)
+
 			if ctx.MingwGccPath != "" {
 				cli.LogDbgf("MinGW-w64 GCC: %s", ctx.MingwGccPath)
 			}

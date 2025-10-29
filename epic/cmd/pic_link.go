@@ -16,8 +16,8 @@ var linkModules string
 
 var linkCmd = &cobra.Command{
 	Use:   "pic-link <path>",
-	Short: "Link object files into standalone PIC payload",
-	Long:  `Link command links compiled object files (core + modules) into standalone PIC payload.`,
+	Short: "Link object files into PIC payload",
+	Long:  `Link command links compiled object files (core + modules) into fully PIC payload.`,
 	Args:  cobra.ExactArgs(1),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		ctx.LinkPIC.ObjectsPath = args[0]
@@ -31,26 +31,22 @@ var linkCmd = &cobra.Command{
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		ctx.LinkPIC.ObjectsPath = args[0]
-
-		if ctx.Debug {
-			cli.LogDbgf("Linking from: %s\n", ctx.LinkPIC.ObjectsPath)
-
-			if len(ctx.LinkPIC.Modules) > 0 {
-				cli.LogDbgf("Modules: %s\n", strings.Join(ctx.LinkPIC.Modules, ","))
-			}
-
-			if ctx.MingwLdPath != "" {
-				cli.LogDbgf("MinGW-w64 LD: %s\n", ctx.MingwLdPath)
-			}
-
-			if ctx.MingwLdPath != "" {
-				cli.LogDbgf("MinGW-w64 objcopy: %s\n", ctx.MingwObjcopyPath)
-			}
-		}
-
 		if linkModules != "" {
 			ctx.LinkPIC.Modules = utils.StringToSlice(linkModules, ",")
+		}
+
+		if ctx.Debug {
+			cli.LogDbgf("Objects path: %s", ctx.LinkPIC.ObjectsPath)
+			cli.LogDbgf("Output path: %s", ctx.LinkPIC.OutputPath)
+			cli.LogDbgf("Modules: %s", strings.Join(ctx.LinkPIC.Modules, ","))
+
+			if ctx.MingwLdPath != "" {
+				cli.LogDbgf("MinGW-w64 ld: %s", ctx.MingwLdPath)
+			}
+
+			if ctx.MingwLdPath != "" {
+				cli.LogDbgf("MinGW-w64 objcopy: %s", ctx.MingwObjcopyPath)
+			}
 		}
 
 		pic.LinkPIC()

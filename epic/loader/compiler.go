@@ -16,41 +16,47 @@ import (
 var loaderContent string
 
 func CompileLoader() {
+	sourceFile := createLoaderSourceFile()
 
-	var (
-		loaderFile = createLoaderFile()
-		outputFile = filepath.Join(ctx.Loader.OutputPath, "loader.exe")
-	)
+	fmt.Println()
+	compileLoader(sourceFile)
+}
+
+func compileLoader(sourceFile string) {
+	outputFile := filepath.Join(ctx.Loader.OutputPath, "loader.exe")
 
 	params := []string{
 		// "--sysroot", ctx.OutputPath,
 		"-o", outputFile,
 		"-static",
 		"-s",
-		loaderFile,
+		sourceFile,
 	}
 
-	cli.LogInfo("Compiling loader...")
+	cli.LogInfof("Compiling %s", sourceFile)
 	output := utils.MingwGcc(params...)
 	if len(output) > 0 {
 		fmt.Println(output)
 	}
 
-	cli.LogOkf("Loader built -> %s", outputFile)
+	cli.LogOkf("Loader compiled -> %s", outputFile)
 }
 
-func createLoaderFile() string {
+func createLoaderSourceFile() string {
+	cli.LogInfof("Converting %s to bytes array", ctx.Loader.PayloadPath)
 	cStr, err := convertBinaryToCString(ctx.Loader.PayloadPath)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
+	assetsDir := filepath.Join(ctx.Loader.OutputPath, "assets")
+	utils.MustCreateDirTree(assetsDir)
+
 	loaderWithPayload := strings.Replace(loaderContent, ":PAYLOAD:", cStr, 1)
-	loaderFile := filepath.Join(ctx.Loader.OutputPath, "assets", "loader.c")
-	utils.MustCreateDirTree(loaderFile)
+	loaderFile := filepath.Join(assetsDir, "loader.c")
 	utils.MustWriteFile(loaderFile, loaderWithPayload)
 
-	cli.LogInfof("PIC payload injected -> %s", loaderFile)
+	cli.LogOkf("Payload injected -> %s", loaderFile)
 
 	return loaderFile
 }

@@ -69,13 +69,13 @@ func __compileProjectDirectory(projectDir string) {
 		}
 
 		inputFile := filepath.Join(ctx.CompilePIC.ProjectPath, projectDir, file.Name)
-		outputFile := filepath.Join(
+		outputDir := filepath.Join(
 			ctx.CompilePIC.OutputPath,
 			projectDir,
 			filepath.Dir(relPath),
-			utils.ReplaceExtension(file.Name, ".o"))
-
-		utils.MustCreateDirTree(outputFile)
+		)
+		utils.MustCreateDirTree(outputDir)
+		outputFile := filepath.Join(outputDir, utils.ReplaceExtension(file.Name, ".o"))
 
 		cli.LogInfof(" ‣ %s -> %s", inputFile, outputFile)
 
@@ -88,6 +88,7 @@ func __compileProjectDirectory(projectDir string) {
 			"-std=c17",
 			"-fPIC",
 			"-nostdlib",
+			"-nostdinc",
 			"-nostartfiles",
 			"-ffreestanding",
 			"-fno-builtin",

@@ -5,6 +5,7 @@ import (
 	"epic/ctx"
 	"epic/utils"
 	"fmt"
+	"path/filepath"
 )
 
 func CompileMonolith() {
@@ -12,7 +13,8 @@ func CompileMonolith() {
 		Compile entire project into monolith (non-PIC) PE executable.
 		It always compiles all modules.
 	*/
-	cli.LogInfo("Building monolith executable...")
+
+	cli.LogInfof("Collecting source files from %s", ctx.Monolith.ProjectPath)
 
 	var sourceFiles []string
 
@@ -20,8 +22,18 @@ func CompileMonolith() {
 		sourceFiles = append(sourceFiles, source.FullPath)
 	}
 
+	if ctx.Debug {
+		for _, f := range sourceFiles {
+			cli.LogInfof(" ‣ %s ", f)
+		}
+	}
+
+	cli.LogInfo("Compiling monolith executable...")
+
+	outputFile := filepath.Join(ctx.Monolith.OutputPath, "monolith.exe")
+
 	params := []string{
-		"-o", ctx.Monolith.OutputPath,
+		"-o", outputFile,
 		"-w", "-Os",
 		"-Wl,--subsystem,console,--entry,__main_pic",
 		"-nostartfiles",
@@ -36,5 +48,5 @@ func CompileMonolith() {
 		fmt.Println(output)
 	}
 
-	cli.LogOk("Monolith executable built!")
+	cli.LogOkf("Monolith compiled -> %s", outputFile)
 }

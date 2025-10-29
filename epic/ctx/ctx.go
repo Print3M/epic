@@ -23,8 +23,8 @@ type MonolithCtx struct {
 }
 
 var (
-	NoColor          bool // TODO: Implement colors / disable colors
-	NoBanner         bool // TODO: Implement banner / disable banner
+	NoColor          bool
+	NoBanner         bool
 	Debug            bool
 	Version          string
 	MingwGccPath     string
