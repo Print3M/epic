@@ -58,10 +58,6 @@ Solution to this problem is using `main()` as entry point and implement dummy em
 
 Second solution is not to use `main()` at all. Create a not-main function (e.g. `__main_pic`) and use it as a entry point. It works this way.
 
-## Header files are nasty
-
-Just including default Windows MinGW-w64 header files throws some errors. For example, it requires SSE to be enabled to compile successfully and I want it to be disabled. This is the reason why I don't use default Windows headers but include only custom ones.
-
 ## Troubleshooting
 
 1. Clean output/ directory.
