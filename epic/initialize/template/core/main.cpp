@@ -39,3 +39,7 @@ FIRST_STAGE void __main_pic() {
 		"ret\n"
 	);
 }
+
+#ifdef MONOLITH
+void WINAPI WinMain() { __main_pic(); }
+#endif

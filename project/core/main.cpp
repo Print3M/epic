@@ -4,6 +4,10 @@
 #include <libc/stdint.h>
 #include <modules/hello/hello.h>
 
+#ifdef MONOLITH
+#include <stdio.h>
+#endif
+
 typedef struct {
 	const char *message;
 	void *start;
@@ -12,13 +16,17 @@ typedef struct {
 
 void child_func() {
 	auto ctx = (Context *) GET_GLOBAL();
-	
+
 	hello::message(ctx->message);
 }
 
 SECOND_STAGE void main_pic() {
 	Context ctx;
 	SAVE_GLOBAL(ctx);
+
+#ifdef MONOLITH
+	printf("MONOLITH HERE WE GO AGAIN!");
+#endif
 
 	ctx.message = "Hello EPIC!";
 
@@ -37,3 +45,7 @@ FIRST_STAGE void __main_pic() {
 					 "pop %rsi\n"
 					 "ret\n");
 }
+
+#ifdef MONOLITH
+void WINAPI WinMain() { __main_pic(); }
+#endif

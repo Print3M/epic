@@ -36,10 +36,10 @@ func CompileMonolith() {
 		"-o", outputFile,
 		"-w", "-Os",
 		"-Wl,--subsystem,console,--entry,__main_pic",
-		"-nostartfiles",
 		"-static",
 		"-ffixed-rbx",
 		"-DMONOLITH",
+		"-fno-lto",
 		"-I", filepath.Join(ctx.Monolith.ProjectPath, "include"),
 		"-I", ctx.Monolith.ProjectPath,
 	}

@@ -13,7 +13,7 @@ func getTime() string {
 		Foreground(lipgloss.Color("black")).
 		Background(lipgloss.Color("white")).
 		Align(lipgloss.Center).
-		Width(12)
+		Width(10)
 
 	now := time.Now()
 
