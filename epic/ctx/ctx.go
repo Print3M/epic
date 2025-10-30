@@ -1,5 +1,8 @@
 package ctx
 
+// TODO: Fix this abomination
+// Only common flags + MinGW should be left here
+
 type CompilePicCtx struct {
 	ProjectPath string
 	OutputPath  string
@@ -22,6 +25,10 @@ type MonolithCtx struct {
 	OutputPath  string
 }
 
+type InitCtx struct {
+	OutputPath string
+}
+
 var (
 	NoColor          bool
 	NoBanner         bool
@@ -30,8 +37,10 @@ var (
 	MingwGccPath     string
 	MingwObjcopyPath string
 	MingwLdPath      string
-	CompilePIC       CompilePicCtx
-	LinkPIC          LinkPicCtx
-	Loader           LoaderCtx
-	Monolith         MonolithCtx
+
+	// TODO: Remove this
+	CompilePIC CompilePicCtx
+	LinkPIC    LinkPicCtx
+	Loader     LoaderCtx
+	Monolith   MonolithCtx
 )

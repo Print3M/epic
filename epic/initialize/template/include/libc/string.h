@@ -1,0 +1,265 @@
+/* Single-header string.h library - Freestanding, minimal dependencies */
+/* All functions implemented inline for PIC shellcode compatibility */
+/* Suitable for x86_64 Windows (MinGW-w64) */
+#pragma once
+
+#include "stddef.h"
+#include "stdint.h"
+
+/* ============================================================================
+ * Memory manipulation functions
+ * ============================================================================ */
+
+static inline void *memcpy(void *dest, const void *src, size_t n) {
+    uint8_t *d = (uint8_t *)dest;
+    const uint8_t *s = (const uint8_t *)src;
+    while (n--) {
+        *d++ = *s++;
+    }
+    return dest;
+}
+
+static inline void *memset(void *dest, int c, size_t n) {
+    uint8_t *d = (uint8_t *)dest;
+    while (n--) {
+        *d++ = (uint8_t)c;
+    }
+    return dest;
+}
+
+static inline void *memmove(void *dest, const void *src, size_t n) {
+    uint8_t *d = (uint8_t *)dest;
+    const uint8_t *s = (const uint8_t *)src;
+    
+    if (d < s) {
+        /* Copy forward */
+        while (n--) {
+            *d++ = *s++;
+        }
+    } else if (d > s) {
+        /* Copy backward to handle overlap */
+        d += n;
+        s += n;
+        while (n--) {
+            *(--d) = *(--s);
+        }
+    }
+    return dest;
+}
+
+static inline int memcmp(const void *s1, const void *s2, size_t n) {
+    const uint8_t *p1 = (const uint8_t *)s1;
+    const uint8_t *p2 = (const uint8_t *)s2;
+    
+    while (n--) {
+        if (*p1 != *p2) {
+            return *p1 - *p2;
+        }
+        p1++;
+        p2++;
+    }
+    return 0;
+}
+
+static inline void *memchr(const void *s, int c, size_t n) {
+    const uint8_t *p = (const uint8_t *)s;
+    while (n--) {
+        if (*p == (uint8_t)c) {
+            return (void *)p;
+        }
+        p++;
+    }
+    return NULL;
+}
+
+/* ============================================================================
+ * String examination functions
+ * ============================================================================ */
+
+static inline size_t strlen(const char *s) {
+    const char *p = s;
+    while (*p) {
+        p++;
+    }
+    return (size_t)(p - s);
+}
+
+static inline int strcmp(const char *s1, const char *s2) {
+    while (*s1 && (*s1 == *s2)) {
+        s1++;
+        s2++;
+    }
+    return *(const uint8_t *)s1 - *(const uint8_t *)s2;
+}
+
+static inline int strncmp(const char *s1, const char *s2, size_t n) {
+    while (n && *s1 && (*s1 == *s2)) {
+        s1++;
+        s2++;
+        n--;
+    }
+    if (n == 0) {
+        return 0;
+    }
+    return *(const uint8_t *)s1 - *(const uint8_t *)s2;
+}
+
+/* ============================================================================
+ * String manipulation functions
+ * ============================================================================ */
+
+static inline char *strcpy(char *dest, const char *src) {
+    char *d = dest;
+    while ((*d++ = *src++));
+    return dest;
+}
+
+static inline char *strncpy(char *dest, const char *src, size_t n) {
+    char *d = dest;
+    while (n && (*d++ = *src++)) {
+        n--;
+    }
+    /* Pad with zeros if src is shorter than n */
+    while (n--) {
+        *d++ = '\0';
+    }
+    return dest;
+}
+
+static inline char *strcat(char *dest, const char *src) {
+    char *d = dest;
+    /* Find end of dest */
+    while (*d) {
+        d++;
+    }
+    /* Copy src to end */
+    while ((*d++ = *src++));
+    return dest;
+}
+
+static inline char *strncat(char *dest, const char *src, size_t n) {
+    char *d = dest;
+    /* Find end of dest */
+    while (*d) {
+        d++;
+    }
+    /* Copy up to n characters from src */
+    while (n && (*d++ = *src++)) {
+        n--;
+    }
+    /* Ensure null termination */
+    if (n == 0) {
+        *d = '\0';
+    }
+    return dest;
+}
+
+/* ============================================================================
+ * String search functions
+ * ============================================================================ */
+
+static inline char *strchr(const char *s, int c) {
+    while (*s != (char)c) {
+        if (!*s) {
+            return NULL;
+        }
+        s++;
+    }
+    return (char *)s;
+}
+
+static inline char *strrchr(const char *s, int c) {
+    const char *last = NULL;
+    while (*s) {
+        if (*s == (char)c) {
+            last = s;
+        }
+        s++;
+    }
+    /* Check if c is '\0' */
+    if ((char)c == '\0') {
+        return (char *)s;
+    }
+    return (char *)last;
+}
+
+static inline char *strstr(const char *haystack, const char *needle) {
+    if (!*needle) {
+        return (char *)haystack;
+    }
+    
+    while (*haystack) {
+        const char *h = haystack;
+        const char *n = needle;
+        
+        while (*h && *n && (*h == *n)) {
+            h++;
+            n++;
+        }
+        
+        if (!*n) {
+            return (char *)haystack;
+        }
+        
+        haystack++;
+    }
+    return NULL;
+}
+
+/* ============================================================================
+ * Shellcode-specific utility functions
+ * ============================================================================ */
+
+/* Case-insensitive string comparison (useful for Windows API resolution) */
+static inline int stricmp(const char *s1, const char *s2) {
+    while (*s1 && *s2) {
+        char c1 = *s1;
+        char c2 = *s2;
+        
+        /* Convert to lowercase */
+        if (c1 >= 'A' && c1 <= 'Z') c1 += 32;
+        if (c2 >= 'A' && c2 <= 'Z') c2 += 32;
+        
+        if (c1 != c2) {
+            return c1 - c2;
+        }
+        
+        s1++;
+        s2++;
+    }
+    return *s1 - *s2;
+}
+
+/* Case-insensitive string comparison with length limit */
+static inline int strnicmp(const char *s1, const char *s2, size_t n) {
+    while (n && *s1 && *s2) {
+        char c1 = *s1;
+        char c2 = *s2;
+        
+        /* Convert to lowercase */
+        if (c1 >= 'A' && c1 <= 'Z') c1 += 32;
+        if (c2 >= 'A' && c2 <= 'Z') c2 += 32;
+        
+        if (c1 != c2) {
+            return c1 - c2;
+        }
+        
+        s1++;
+        s2++;
+        n--;
+    }
+    
+    if (n == 0) {
+        return 0;
+    }
+    return *s1 - *s2;
+}
+
+/* Zero memory (compiler won't optimize away, useful for sensitive data) */
+static inline void *memzero(void *dest, size_t n) {
+    volatile uint8_t *d = (volatile uint8_t *)dest;
+    while (n--) {
+        *d++ = 0;
+    }
+    return dest;
+}
