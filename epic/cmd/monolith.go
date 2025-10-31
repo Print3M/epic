@@ -3,13 +3,14 @@ package cmd
 import (
 	"epic/cli"
 	"epic/ctx"
-	"epic/monolith"
-	"epic/utils"
+	"epic/logic"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 )
+
+var mc logic.MonolithCompiler
 
 var monolithCmd = &cobra.Command{
 	Use:   "monolith <path>",
@@ -17,29 +18,33 @@ var monolithCmd = &cobra.Command{
 	Long:  `Monolith command builds a single monolithic executable from the project directory.`,
 	Args:  cobra.ExactArgs(1),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		ctx.Monolith.ProjectPath = args[0]
+		mc.ProjectPath = args[0]
 
-		if !utils.PathExists(ctx.Monolith.ProjectPath) {
-			return fmt.Errorf("project directory does not exist: %s", ctx.Monolith.ProjectPath)
+		if err := mc.ValidateProjectPath(); err != nil {
+			return err
 		}
 
-		if !utils.MustIsDir(ctx.Monolith.ProjectPath) {
-			return fmt.Errorf("path must be a directory: %s", ctx.Monolith.ProjectPath)
+		if err := mc.ValidateOutputPath(); err != nil {
+			return err
 		}
 
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if !ctx.NoBanner {
+			cli.PrintBanner()
+		}
+
 		if ctx.Debug {
-			cli.LogDbgf("Project path: %s", ctx.Monolith.ProjectPath)
-			cli.LogDbgf("Output path: %s", ctx.Monolith.OutputPath)
+			cli.LogDbgf("Project path: %s", mc.ProjectPath)
+			cli.LogDbgf("Output path: %s", mc.OutputPath)
 
 			if ctx.MingwGccPath != "" {
 				cli.LogDbgf("MinGW-w64 GCC: %s", ctx.MingwGccPath)
 			}
 		}
 
-		monolith.CompileMonolith()
+		mc.Run()
 
 		return nil
 	},
@@ -48,8 +53,8 @@ var monolithCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(monolithCmd)
 
-	monolithCmd.Flags().StringVarP(&ctx.Monolith.OutputPath, "output", "o", "", "output path for generated executable (required)")
-	monolithCmd.Flags().StringVar(&ctx.MingwGccPath, "mingw-w64-gcc", "", "path to MinGW-w64 GCC")
+	monolithCmd.Flags().StringVarP(&mc.OutputPath, "output", "o", "", "output path for generated executable (required)")
+	// monolithCmd.Flags().StringVar(&ctx.MingwGccPath, "mingw-w64-gcc", "", "path to MinGW-w64 GCC")
 
 	// Mark required flags
 	if err := monolithCmd.MarkFlagRequired("output"); err != nil {

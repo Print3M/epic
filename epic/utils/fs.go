@@ -2,7 +2,7 @@ package utils
 
 import (
 	"embed"
-	"epic/cli"
+	"fmt"
 	"io/fs"
 	"log"
 	"os"
@@ -130,18 +130,18 @@ func MustWriteFile(path string, content string) {
 	}
 }
 
-func ValidateProjectStructure(path string) {
+func ValidateProjectStructure(path string) error {
 	corePath := filepath.Join(path, "core")
 	if !PathExists(corePath) {
-		cli.LogErrf("Invalid project structure. Path doesn't exist: %s", corePath)
-		os.Exit(1)
+		return fmt.Errorf("invalid project structure, (path doesn't exist: %s)", corePath)
 	}
 
 	modulesPath := filepath.Join(path, "modules")
 	if !PathExists(modulesPath) {
-		cli.LogErrf("Invalid project structure. Path doesn't exist: %s", modulesPath)
-		os.Exit(1)
+		return fmt.Errorf("invalid project structure (path doesn't exist: %s)", modulesPath)
 	}
+
+	return nil
 }
 
 func ExtractEmbeddedDir(embeddedFS embed.FS, sourceDir, targetDir string) error {

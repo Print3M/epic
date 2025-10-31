@@ -13,7 +13,7 @@ import (
 // - Automatically obtain address of start and end of payload (in memory)
 
 func main() {
-	cmd.Execute()
+	cmd.Run()
 
 	os.Exit(0)
 }

@@ -3,16 +3,12 @@ package cmd
 import (
 	"epic/cli"
 	"epic/ctx"
-	"epic/initialize"
-	"epic/utils"
-	"fmt"
+	"epic/logic"
 
 	"github.com/spf13/cobra"
 )
 
-var (
-	outputPath string
-)
+var pi logic.ProjectInitializer
 
 var initCmd = &cobra.Command{
 	Use:   "init <path>",
@@ -20,24 +16,24 @@ var initCmd = &cobra.Command{
 	Long:  `Init command creates the initial project structure in the provided directory.`,
 	Args:  cobra.ExactArgs(1),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		outputPath = args[0]
+		pi.OutputPath = args[0]
 
-		if !utils.PathExists(outputPath) {
-			return fmt.Errorf("directory does not exist: %s", outputPath)
-		}
-
-		if !utils.MustIsDir(outputPath) {
-			return fmt.Errorf("path must be a directory: %s", outputPath)
+		if err := pi.ValidateOutputPath(); err != nil {
+			return err
 		}
 
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if ctx.Debug {
-			cli.LogDbgf("Output path: %s", outputPath)
+		if !ctx.NoBanner {
+			cli.PrintBanner()
 		}
 
-		initialize.InitProject(outputPath)
+		if ctx.Debug {
+			cli.LogDbgf("Output path: %s", pi.OutputPath)
+		}
+
+		pi.Run()
 
 		return nil
 	},

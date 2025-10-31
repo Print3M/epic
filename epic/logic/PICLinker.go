@@ -1,4 +1,4 @@
-package pic
+package logic
 
 import (
 	_ "embed"
@@ -14,25 +14,65 @@ import (
 //go:embed assets/linker.ld
 var linkerScriptContent string
 
-func LinkPIC() {
-	linkedExecutable := linkExecutable()
-
-	fmt.Println()
-	extractTextSection(linkedExecutable)
+type PICLinker struct {
+	ObjectsPath string
+	OutputPath  string
+	Modules     []string
 }
 
-func linkExecutable() string {
+func (pl *PICLinker) ValidateObjectsPath() error {
+	if !utils.PathExists(pl.ObjectsPath) {
+		return fmt.Errorf("objects path does not exist: %s", pl.ObjectsPath)
+	}
+
+	if !utils.MustIsDir(pl.ObjectsPath) {
+		return fmt.Errorf("objects path must be a directory: %s", pl.ObjectsPath)
+	}
+
+	if err := utils.ValidateProjectStructure(pl.ObjectsPath); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (pl *PICLinker) ValidateOutputPath() error {
+	if !utils.PathExists(pl.OutputPath) {
+		return fmt.Errorf("output path doesn't exist: %s", pl.OutputPath)
+	}
+
+	if !utils.MustIsDir(pl.OutputPath) {
+		return fmt.Errorf("output path must be a directory: %s", pl.OutputPath)
+	}
+
+	return nil
+}
+
+func (pl *PICLinker) ValidateModules() error {
+	// TODO: Validate modules
+
+	return nil
+}
+
+func (pl *PICLinker) Run() {
+	linkedExecutable := pl.linkExecutable()
+
+	fmt.Println()
+	pl.extractTextSection(linkedExecutable)
+}
+
+func (pl *PICLinker) linkExecutable() string {
 	/*
 		Using ld linker link all object files
 	*/
-	if modules := getLinkedModules(); len(modules) == 0 {
+	if modules := pl.getLinkedModules(); len(modules) == 0 {
 		cli.LogInfo("Linking PIC core (no modules)")
 
 	} else {
 		cli.LogInfof("Linking PIC core + modules (%s)", strings.Join(modules, ","))
 	}
 
-	assetsDir := filepath.Join(ctx.LinkPIC.OutputPath, "assets")
+	assetsDir := filepath.Join(pl.OutputPath, "assets")
 	utils.MustCreateDirTree(assetsDir)
 
 	outputExecutable := filepath.Join(assetsDir, "payload.exe")
@@ -41,7 +81,7 @@ func linkExecutable() string {
 
 	utils.MustWriteFile(linkerScriptFile, linkerScriptContent)
 
-	objectFiles := getObjectFiles()
+	objectFiles := pl.getObjectFiles()
 
 	for _, f := range objectFiles {
 		cli.LogInfof(" ‣ %s ", f)
@@ -73,18 +113,18 @@ func linkExecutable() string {
 	return outputExecutable
 }
 
-func getObjectFiles() []string {
+func (pl *PICLinker) getObjectFiles() []string {
 	var objectFiles []string
 
 	// Collecting core
-	corePath := filepath.Join(ctx.LinkPIC.ObjectsPath, "core")
+	corePath := filepath.Join(pl.ObjectsPath, "core")
 	for _, f := range utils.GetFilesByExtensions(corePath, []string{".o"}) {
 		objectFiles = append(objectFiles, f.FullPath)
 	}
 
 	// Collecting modules
-	for _, module := range getLinkedModules() {
-		path := filepath.Join(ctx.LinkPIC.ObjectsPath, "modules", module)
+	for _, module := range pl.getLinkedModules() {
+		path := filepath.Join(pl.ObjectsPath, "modules", module)
 
 		for _, f := range utils.GetFilesByExtensions(path, []string{".o"}) {
 			objectFiles = append(objectFiles, f.FullPath)
@@ -94,12 +134,12 @@ func getObjectFiles() []string {
 	return objectFiles
 }
 
-func getLinkedModules() []string {
+func (pl *PICLinker) getLinkedModules() []string {
 	var modules []string
-	path := filepath.Join(ctx.LinkPIC.ObjectsPath, "modules")
+	path := filepath.Join(pl.ObjectsPath, "modules")
 
 	for _, m := range utils.GetChildDirs(path) {
-		if slices.Contains(ctx.LinkPIC.Modules, m) {
+		if slices.Contains(pl.Modules, m) {
 			modules = append(modules, m)
 		}
 	}
@@ -107,12 +147,12 @@ func getLinkedModules() []string {
 	return modules
 }
 
-func extractTextSection(file string) {
+func (pl *PICLinker) extractTextSection(file string) {
 	/*
 		Using objcopy tool extract .text section from compiled executable.
 	*/
 	cli.LogInfof("Extracting '.text' section from %s", file)
-	outputFile := filepath.Join(ctx.LinkPIC.OutputPath, "payload.bin")
+	outputFile := filepath.Join(pl.OutputPath, "payload.bin")
 
 	output := utils.MingwObjcopy("-O", "binary", "--only-section=.text", file, outputFile)
 	if len(output) > 0 {

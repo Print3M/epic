@@ -18,10 +18,6 @@ var rootCmd = &cobra.Command{
 			cli.DisableColors()
 		}
 
-		if !ctx.NoBanner {
-			cli.PrintBanner()
-		}
-
 		if ctx.Debug {
 			cli.LogDbg("Debug mode enabled")
 
@@ -32,7 +28,7 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func Execute() {
+func Run() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
@@ -43,6 +39,9 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&ctx.Debug, "debug", false, "enable debug mode")
 	rootCmd.PersistentFlags().BoolVar(&ctx.NoColor, "no-color", false, "disable colors output")
 	rootCmd.PersistentFlags().BoolVar(&ctx.NoBanner, "no-banner", false, "disable epic banner")
+	rootCmd.Flags().StringVar(&ctx.MingwGccPath, "mingw-w64-gcc", "", "path to MinGW-w64 GCC")
+	rootCmd.Flags().StringVar(&ctx.MingwLdPath, "mingw-w64-ld", "", "path to MinGW-w64 ld")
+	rootCmd.Flags().StringVar(&ctx.MingwObjcopyPath, "mingw-w64-objcopy", "", "path to MinGW-w64 objcopy")
 
 	rootCmd.SetVersionTemplate(`{{printf "epic version %s\n" .Version}}`)
 	rootCmd.CompletionOptions.DisableDefaultCmd = true

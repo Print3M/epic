@@ -3,13 +3,14 @@ package cmd
 import (
 	"epic/cli"
 	"epic/ctx"
-	"epic/loader"
-	"epic/utils"
+	"epic/logic"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 )
+
+var lc logic.LoaderCompiler
 
 var loaderCmd = &cobra.Command{
 	Use:   "loader <path>",
@@ -17,37 +18,33 @@ var loaderCmd = &cobra.Command{
 	Long:  `Loader command builds a test loader executable with the specified payload.`,
 	Args:  cobra.ExactArgs(1),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		ctx.Loader.PayloadPath = args[0]
+		lc.PayloadPath = args[0]
 
-		if !utils.PathExists(ctx.Loader.PayloadPath) {
-			return fmt.Errorf("payload file doesn't exist: %s", ctx.Loader.PayloadPath)
+		if err := lc.ValidatePayloadPath(); err != nil {
+			return err
 		}
 
-		if utils.MustIsDir(ctx.Loader.PayloadPath) {
-			return fmt.Errorf("payload path must be a file: %s", ctx.Loader.PayloadPath)
-		}
-
-		if !utils.PathExists(ctx.Loader.OutputPath) {
-			return fmt.Errorf("output path doesn't exist: %s", ctx.Loader.OutputPath)
-		}
-
-		if !utils.MustIsDir(ctx.Loader.OutputPath) {
-			return fmt.Errorf("output path must be a directory: %s", ctx.Loader.OutputPath)
+		if err := lc.ValidateOutputPath(); err != nil {
+			return err
 		}
 
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if !ctx.NoBanner {
+			cli.PrintBanner()
+		}
+
 		if ctx.Debug {
-			cli.LogDbgf("Payload path: %s", ctx.Loader.PayloadPath)
-			cli.LogDbgf("Output path: %s", ctx.Loader.OutputPath)
+			cli.LogDbgf("Payload path: %s", lc.OutputPath)
+			cli.LogDbgf("Output path: %s", lc.PayloadPath)
 
 			if ctx.MingwGccPath != "" {
 				cli.LogDbgf("MinGW-w64 GCC: %s", ctx.MingwGccPath)
 			}
 		}
 
-		loader.CompileLoader()
+		lc.Run()
 
 		return nil
 	},
@@ -56,8 +53,8 @@ var loaderCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(loaderCmd)
 
-	loaderCmd.Flags().StringVarP(&ctx.Loader.OutputPath, "output", "o", "", "output path for generated loader (required)")
-	loaderCmd.Flags().StringVar(&ctx.MingwGccPath, "mingw-w64-gcc", "", "path to MinGW-w64 GCC")
+	loaderCmd.Flags().StringVarP(&lc.OutputPath, "output", "o", "", "output path for generated loader (required)")
+	// loaderCmd.Flags().StringVar(&ctx.MingwGccPath, "mingw-w64-gcc", "", "path to MinGW-w64 GCC")
 
 	// Mark required flags
 	if err := loaderCmd.MarkFlagRequired("output"); err != nil {

@@ -1,65 +1,89 @@
-package pic
+package logic
 
 import (
 	_ "embed"
 	"epic/cli"
-	"epic/ctx"
 	"epic/utils"
 	"fmt"
 	"os"
 	"path/filepath"
-	"slices"
 )
 
-func CompilePIC() {
-	compileCore()
+type PICCompiler struct {
+	ProjectPath string
+	OutputPath  string
+}
+
+func (pc *PICCompiler) ValidateProjectPath() error {
+	if !utils.PathExists(pc.ProjectPath) {
+		return fmt.Errorf("project path does not exist: %s", pc.ProjectPath)
+	}
+
+	if !utils.MustIsDir(pc.ProjectPath) {
+		return fmt.Errorf("project path must be a directory: %s", pc.ProjectPath)
+	}
+
+	if err := utils.ValidateProjectStructure(pc.ProjectPath); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (pc *PICCompiler) ValidateOutputPath() error {
+	if !utils.PathExists(pc.OutputPath) {
+		return fmt.Errorf("output path doesn't exist: %s", pc.OutputPath)
+	}
+
+	if !utils.MustIsDir(pc.OutputPath) {
+		return fmt.Errorf("output path must be a directory: %s", pc.OutputPath)
+	}
+
+	return nil
+}
+
+func (pc *PICCompiler) Run() {
+	pc.compileCore()
 	fmt.Println()
 
-	compileModules()
+	pc.compileModules()
 	fmt.Println()
 }
 
-func compileCore() {
+func (pc *PICCompiler) compileCore() {
 	/*
 		Compile "project/core/**" directory.
 	*/
 	cli.LogInfo("Compiling core...")
 
-	__compileProjectDirectory("core")
+	pc.compileProjectDirectory("core")
 
 	cli.LogOk("Core compiled!")
 }
 
-func compileModules() {
+func (pc *PICCompiler) compileModules() {
 	/*
 		Compile "project/modules/<name>/**" directories.
 	*/
-	modules := utils.GetChildDirs(filepath.Join(ctx.CompilePIC.ProjectPath, "modules"))
+	modules := utils.GetChildDirs(filepath.Join(pc.ProjectPath, "modules"))
 
 	for _, module := range modules {
-		if !slices.Contains(ctx.CompilePIC.Modules, module) {
-			continue
-		}
-
 		cli.LogInfof("Compiling '%s' module...", module)
 
 		moduleDir := filepath.Join("modules", module)
-		__compileProjectDirectory(moduleDir)
+		pc.compileProjectDirectory(moduleDir)
 
 		cli.LogOkf("Module '%s' compiled!", module)
-
 	}
-
-	// TODO: Add unknown module error
 }
 
-func __compileProjectDirectory(projectDir string) {
+func (pc *PICCompiler) compileProjectDirectory(targetDir string) {
 	/*
 		Compile all source files from :inputPath and put it into output/objects/**
 		directories. The output structure of directory is mimicking :inputPath.
 	*/
 
-	absProjectDir := utils.MustGetAbsPath(filepath.Join(ctx.CompilePIC.ProjectPath, projectDir))
+	absProjectDir := utils.MustGetAbsPath(filepath.Join(pc.ProjectPath, targetDir))
 
 	for _, file := range utils.GetFilesByExtensions(absProjectDir, []string{".c", ".cpp"}) {
 		relPath, err := filepath.Rel(absProjectDir, file.FullPath)
@@ -68,10 +92,10 @@ func __compileProjectDirectory(projectDir string) {
 			os.Exit(1)
 		}
 
-		inputFile := filepath.Join(ctx.CompilePIC.ProjectPath, projectDir, file.Name)
+		inputFile := filepath.Join(pc.ProjectPath, targetDir, file.Name)
 		outputDir := filepath.Join(
-			ctx.CompilePIC.OutputPath,
-			projectDir,
+			pc.OutputPath,
+			targetDir,
 			filepath.Dir(relPath),
 		)
 		utils.MustCreateDirTree(outputDir)
@@ -81,7 +105,7 @@ func __compileProjectDirectory(projectDir string) {
 
 		// TODO: Check which parameters are actually necessary (some of them are linker params)
 		params := []string{
-			"--sysroot", projectDir,
+			// "--sysroot", projectDir, // TODO: Is it required?
 			"-c", file.FullPath,
 			"-o", outputFile,
 			"-Os",
@@ -108,8 +132,8 @@ func __compileProjectDirectory(projectDir string) {
 			"-fno-asynchronous-unwind-tables",
 			"-DPIC",
 			"-ffixed-rbx",
-			"-I", filepath.Join(ctx.CompilePIC.ProjectPath, "include"),
-			"-I", ctx.CompilePIC.ProjectPath,
+			"-I", filepath.Join(pc.ProjectPath, "include"),
+			"-I", pc.ProjectPath,
 		}
 
 		switch filepath.Ext(file.FullPath) {

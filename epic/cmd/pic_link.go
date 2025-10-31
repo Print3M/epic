@@ -3,7 +3,7 @@ package cmd
 import (
 	"epic/cli"
 	"epic/ctx"
-	"epic/pic"
+	"epic/logic"
 	"epic/utils"
 	"fmt"
 	"os"
@@ -12,7 +12,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var linkModules string
+var __linkModules string
+
+var pl logic.PICLinker
 
 var linkCmd = &cobra.Command{
 	Use:   "pic-link <path>",
@@ -20,25 +22,35 @@ var linkCmd = &cobra.Command{
 	Long:  `Link command links compiled object files (core + modules) into fully PIC payload.`,
 	Args:  cobra.ExactArgs(1),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		ctx.LinkPIC.ObjectsPath = args[0]
+		pl.ObjectsPath = args[0]
 
-		if !utils.PathExists(ctx.LinkPIC.ObjectsPath) {
-			return fmt.Errorf("project path does not exist: %s", ctx.LinkPIC.ObjectsPath)
+		if err := pl.ValidateObjectsPath(); err != nil {
+			return err
 		}
 
-		utils.ValidateProjectStructure(ctx.LinkPIC.ObjectsPath)
+		if err := pl.ValidateModules(); err != nil {
+			return err
+		}
+
+		if err := pl.ValidateOutputPath(); err != nil {
+			return err
+		}
 
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if linkModules != "" {
-			ctx.LinkPIC.Modules = utils.StringToSlice(linkModules, ",")
+		if !ctx.NoBanner {
+			cli.PrintBanner()
+		}
+
+		if __linkModules != "" {
+			pl.Modules = utils.StringToSlice(__linkModules, ",")
 		}
 
 		if ctx.Debug {
-			cli.LogDbgf("Objects path: %s", ctx.LinkPIC.ObjectsPath)
-			cli.LogDbgf("Output path: %s", ctx.LinkPIC.OutputPath)
-			cli.LogDbgf("Modules: %s", strings.Join(ctx.LinkPIC.Modules, ","))
+			cli.LogDbgf("Objects path: %s", pl.ObjectsPath)
+			cli.LogDbgf("Output path: %s", pl.OutputPath)
+			cli.LogDbgf("Modules: %s", strings.Join(pl.Modules, ","))
 
 			if ctx.MingwLdPath != "" {
 				cli.LogDbgf("MinGW-w64 ld: %s", ctx.MingwLdPath)
@@ -49,7 +61,7 @@ var linkCmd = &cobra.Command{
 			}
 		}
 
-		pic.LinkPIC()
+		pl.Run()
 
 		return nil
 	},
@@ -58,10 +70,10 @@ var linkCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(linkCmd)
 
-	linkCmd.Flags().StringVarP(&linkModules, "modules", "m", "", "comma-separated list of modules")
-	linkCmd.Flags().StringVar(&ctx.MingwLdPath, "mingw-w64-ld", "", "path to MinGW-w64 ld")
-	linkCmd.Flags().StringVar(&ctx.MingwObjcopyPath, "mingw-w64-objcopy", "", "path to MinGW-w64 objcopy")
-	linkCmd.Flags().StringVarP(&ctx.LinkPIC.OutputPath, "output", "o", "", "output path (required)")
+	linkCmd.Flags().StringVarP(&__linkModules, "modules", "m", "", "comma-separated list of modules")
+	linkCmd.Flags().StringVarP(&pl.OutputPath, "output", "o", "", "output path (required)")
+	// linkCmd.Flags().StringVar(&ctx.MingwLdPath, "mingw-w64-ld", "", "path to MinGW-w64 ld")
+	// linkCmd.Flags().StringVar(&ctx.MingwObjcopyPath, "mingw-w64-objcopy", "", "path to MinGW-w64 objcopy")
 
 	// Mark required flags
 	if err := linkCmd.MarkFlagRequired("output"); err != nil {
