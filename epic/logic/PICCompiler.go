@@ -105,7 +105,6 @@ func (pc *PICCompiler) compileProjectDirectory(targetDir string) {
 
 		// TODO: Check which parameters are actually necessary (some of them are linker params)
 		params := []string{
-			// "--sysroot", projectDir, // TODO: Is it required?
 			"-c", file.FullPath,
 			"-o", outputFile,
 			"-Os",

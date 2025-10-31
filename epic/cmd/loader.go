@@ -54,7 +54,6 @@ func init() {
 	rootCmd.AddCommand(loaderCmd)
 
 	loaderCmd.Flags().StringVarP(&lc.OutputPath, "output", "o", "", "output path for generated loader (required)")
-	// loaderCmd.Flags().StringVar(&ctx.MingwGccPath, "mingw-w64-gcc", "", "path to MinGW-w64 GCC")
 
 	// Mark required flags
 	if err := loaderCmd.MarkFlagRequired("output"); err != nil {

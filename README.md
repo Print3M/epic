@@ -37,11 +37,38 @@ The compiled `loader.exe` file is ready to be executed! If your payload works in
 
 #### `init <path>`
 
+Example: `epic init project/`
+
+Create a project structure. It's a way to start a new PIC project. It includes basic example of usage. `<path>` is the target where project structure is created. It creates project in C++ but you can change it to C just changing file extensions and removing C++ features like namespaces. Built-in EPIC headers are compatbile with C and C++. IMPORTANT: It creates directories structure. Set `<path>` to a separate folder to keep things clean.
+
 #### `pic-compile <path>`
+
+Example: `epic pic-compile project/ -o objects/`
+
+Compile all source files from project `<path>` and save object files in the `--output <path>`. IMPORTANT: The output structure of object files directly mimics project structure. Save them rather in a separate folder (let's say `output/`) just to keep things clean.
+
+Flags:
+
+* `-o / --output <path>` [required] - path where the compiled objects file will be saved.
 
 #### `pic-link <path>`
 
+Example: `epic pic-link objects/ -o output/`
+
+Link core and selected modules from `<path>` together into a standalone PIC payload. The `<path>` in this command is the output path of the `pic-compile` command.
+
+IMPORTANT: It creates also folder `assets/` in the output path where linker map, linker script and intermediate executable is stored. Just for a debugging purposes if you want to investigate what exactly is linked into your payload.
+
+Flags:
+
+* `-o / --output <path>` [required] - path where the output payload will be saved.
+* `-m / --modules <modules>` - comma-separated list of modules to be linked. Modules are named after their folders in `modules/` directory.
+
 #### `loader <path>`
+
+Example: `epic loader output/payload.bin -o output/`
+
+Inject your `<path>` payload into loader template.
 
 #### `monolith <path>`
 
@@ -63,11 +90,12 @@ Rules of shellcode.
 2. Test monolith version (more reliable).
 3. Check if you follow EPIC Guidebook.
 4. Run `--debug`.
+5. Check linker map.
 
 ### EPIC Limitations
 
-- Supported platform: x86-64
-- C / C++ languages
+* Supported platform: x86-64
+* C / C++ languages
 
 ### FAQ
 

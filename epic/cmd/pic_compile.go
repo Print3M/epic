@@ -54,7 +54,6 @@ func init() {
 	rootCmd.AddCommand(compileCmd)
 
 	compileCmd.Flags().StringVarP(&pc.OutputPath, "output", "o", "", "output path (required)")
-	// compileCmd.Flags().StringVar(&ctx.MingwGccPath, "mingw-w64-gcc", "", "path to MinGW-w64 GCC")
 
 	// Mark required flags
 	if err := compileCmd.MarkFlagRequired("output"); err != nil {

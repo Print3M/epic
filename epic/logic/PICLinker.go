@@ -49,7 +49,13 @@ func (pl *PICLinker) ValidateOutputPath() error {
 }
 
 func (pl *PICLinker) ValidateModules() error {
-	// TODO: Validate modules
+	modules := utils.GetChildDirs(filepath.Join(pl.ObjectsPath, "modules"))
+
+	for _, m := range pl.Modules {
+		if !slices.Contains(modules, m) {
+			return fmt.Errorf("unknown module: %s", m)
+		}
+	}
 
 	return nil
 }
@@ -65,11 +71,11 @@ func (pl *PICLinker) linkExecutable() string {
 	/*
 		Using ld linker link all object files
 	*/
-	if modules := pl.getLinkedModules(); len(modules) == 0 {
+	if len(pl.Modules) == 0 {
 		cli.LogInfo("Linking PIC core (no modules)")
 
 	} else {
-		cli.LogInfof("Linking PIC core + modules (%s)", strings.Join(modules, ","))
+		cli.LogInfof("Linking PIC core + modules (%s)", strings.Join(pl.Modules, ","))
 	}
 
 	assetsDir := filepath.Join(pl.OutputPath, "assets")
@@ -123,7 +129,7 @@ func (pl *PICLinker) getObjectFiles() []string {
 	}
 
 	// Collecting modules
-	for _, module := range pl.getLinkedModules() {
+	for _, module := range pl.Modules {
 		path := filepath.Join(pl.ObjectsPath, "modules", module)
 
 		for _, f := range utils.GetFilesByExtensions(path, []string{".o"}) {
@@ -131,20 +137,11 @@ func (pl *PICLinker) getObjectFiles() []string {
 		}
 	}
 
-	return objectFiles
-}
-
-func (pl *PICLinker) getLinkedModules() []string {
-	var modules []string
-	path := filepath.Join(pl.ObjectsPath, "modules")
-
-	for _, m := range utils.GetChildDirs(path) {
-		if slices.Contains(pl.Modules, m) {
-			modules = append(modules, m)
-		}
+	if len(objectFiles) == 0 {
+		cli.LogErrf("No object files (*.o) found in %s", pl.ObjectsPath)
 	}
 
-	return modules
+	return objectFiles
 }
 
 func (pl *PICLinker) extractTextSection(file string) {

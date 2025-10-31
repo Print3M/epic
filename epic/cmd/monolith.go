@@ -54,7 +54,6 @@ func init() {
 	rootCmd.AddCommand(monolithCmd)
 
 	monolithCmd.Flags().StringVarP(&mc.OutputPath, "output", "o", "", "output path for generated executable (required)")
-	// monolithCmd.Flags().StringVar(&ctx.MingwGccPath, "mingw-w64-gcc", "", "path to MinGW-w64 GCC")
 
 	// Mark required flags
 	if err := monolithCmd.MarkFlagRequired("output"); err != nil {

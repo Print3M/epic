@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 )
 
@@ -14,6 +15,10 @@ func IsProgramAvailable(name string) bool {
 	_, err := exec.LookPath(name)
 
 	return err == nil
+}
+
+func IsWindows() bool {
+	return runtime.GOOS == "windows"
 }
 
 func MustExecuteProgram(name string, args ...string) string {
@@ -42,10 +47,16 @@ func MustExecuteProgram(name string, args ...string) string {
 	return string(output)
 }
 
+// TODO: Implement Windows compatibility
+
 func MingwLd(params ...string) string {
 	ld := ctx.MingwLdPath
 	if ld == "" {
 		ld = "x86_64-w64-mingw32-ld"
+
+		if IsWindows() {
+			ld += ".exe"
+		}
 	}
 
 	if !IsProgramAvailable(ld) {
@@ -62,6 +73,10 @@ func MingwGcc(params ...string) string {
 	gcc := ctx.MingwGccPath
 	if gcc == "" {
 		gcc = "x86_64-w64-mingw32-gcc"
+
+		if IsWindows() {
+			gcc += ".exe"
+		}
 	}
 
 	if !IsProgramAvailable(gcc) {
@@ -78,6 +93,10 @@ func MingwObjcopy(params ...string) string {
 	objcopy := ctx.MingwObjcopyPath
 	if objcopy == "" {
 		objcopy = "x86_64-w64-mingw32-objcopy"
+
+		if IsWindows() {
+			objcopy += ".exe"
+		}
 	}
 
 	if !IsProgramAvailable(objcopy) {

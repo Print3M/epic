@@ -24,6 +24,10 @@ var linkCmd = &cobra.Command{
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		pl.ObjectsPath = args[0]
 
+		if __linkModules != "" {
+			pl.Modules = utils.StringToSlice(__linkModules, ",")
+		}
+
 		if err := pl.ValidateObjectsPath(); err != nil {
 			return err
 		}
@@ -41,10 +45,6 @@ var linkCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if !ctx.NoBanner {
 			cli.PrintBanner()
-		}
-
-		if __linkModules != "" {
-			pl.Modules = utils.StringToSlice(__linkModules, ",")
 		}
 
 		if ctx.Debug {
@@ -72,8 +72,6 @@ func init() {
 
 	linkCmd.Flags().StringVarP(&__linkModules, "modules", "m", "", "comma-separated list of modules")
 	linkCmd.Flags().StringVarP(&pl.OutputPath, "output", "o", "", "output path (required)")
-	// linkCmd.Flags().StringVar(&ctx.MingwLdPath, "mingw-w64-ld", "", "path to MinGW-w64 ld")
-	// linkCmd.Flags().StringVar(&ctx.MingwObjcopyPath, "mingw-w64-objcopy", "", "path to MinGW-w64 objcopy")
 
 	// Mark required flags
 	if err := linkCmd.MarkFlagRequired("output"); err != nil {
