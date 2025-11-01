@@ -38,11 +38,11 @@ func init() {
 	// Flags available to all commands
 	rootCmd.PersistentFlags().BoolVar(&ctx.Debug, "debug", false, "enable debug mode")
 	rootCmd.PersistentFlags().BoolVar(&ctx.NoColor, "no-color", false, "disable colors output")
-	rootCmd.PersistentFlags().BoolVar(&ctx.NoBanner, "no-banner", false, "disable epic banner")
+	rootCmd.PersistentFlags().BoolVar(&ctx.NoBanner, "no-banner", false, "disable EPIC banner")
 	rootCmd.PersistentFlags().StringVar(&ctx.MingwGccPath, "mingw-w64-gcc", "", "path to MinGW-w64 GCC")
 	rootCmd.PersistentFlags().StringVar(&ctx.MingwLdPath, "mingw-w64-ld", "", "path to MinGW-w64 ld")
 	rootCmd.PersistentFlags().StringVar(&ctx.MingwObjcopyPath, "mingw-w64-objcopy", "", "path to MinGW-w64 objcopy")
 
-	rootCmd.SetVersionTemplate(`{{printf "epic version %s\n" .Version}}`)
+	rootCmd.SetVersionTemplate(`{{printf "EPIC version %s\n" .Version}}`)
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 }

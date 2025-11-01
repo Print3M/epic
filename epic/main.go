@@ -8,6 +8,7 @@ import (
 // TODO:
 // - Add cool README
 // - Automatically obtain address of start and end of payload (in memory)
+// - Implement custom symbols for compilation
 
 func main() {
 	cmd.Run()
