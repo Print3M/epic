@@ -16,6 +16,7 @@ void child_func() {
 	hello::message(ctx->message);
 }
 
+// EPIC: Entry point
 SECOND_STAGE void main_pic() {
 	Context ctx;
 	SAVE_GLOBAL(ctx);
@@ -25,6 +26,7 @@ SECOND_STAGE void main_pic() {
 	child_func();
 }
 
+// EPIC: Do not remove!
 FIRST_STAGE void __main_pic() {
 	__asm__ volatile(
 		"push %rsi\n"
@@ -40,6 +42,7 @@ FIRST_STAGE void __main_pic() {
 	);
 }
 
+// EPIC: Do not remove!
 #ifdef MONOLITH
 void WINAPI WinMain() { __main_pic(); }
 #endif

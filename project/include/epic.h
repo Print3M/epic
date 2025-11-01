@@ -21,7 +21,7 @@
 #endif
 
 // CPU-based global variable mechanism. Memory address is stored in a fixed CPU register.
-// Usage of this CPU register must be disabled at the compilation level so that our
+// Usage of this CPU register must be disabled at the compilation level so our
 // "global" pointer is not overwritten.
 #define SAVE_GLOBAL(var) __asm__ volatile("mov %0, %%rbx" ::"r"(&var))
 #define GET_GLOBAL()                                     \
