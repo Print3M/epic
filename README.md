@@ -1,11 +1,25 @@
 # EPIC
 
-EPIC stands for *Extensible Position Independent Code*.
+EPIC (*Extensible Position Independent Code*) ...
 
 // TODO: IMG ze schematem działania
 
 // TODO: Short description - what problem it solves.
 // TODO: Features
+
+EPIC (Extensible Position Independent Code) – implant development and shellcode-building framework designed for developer experience, predictability, and modularity.
+
+// TODO: A stable and convenient tool for building your project.
+
+EPIC transforms complex shellcode engineering into a seamless process — building fully position-independent payloads with zero hidden magic, zero heap reliance, and maximal clarity. Whether you’re crafting stealth implants or high-level modular payloads, EPIC ensures your binaries remain elegant, efficient, and exact.
+
+- Built-in modularity – you choose what you want to include.
+- Built-in global context support – no memory permission changes!
+- Built-in dead-code elimination – the smallest payload on the market.
+- Predictable PIC generation — no implicit syscalls, no unexpected code.
+- Built-in minimal `libc` and `win32` written for PIC compatibility.
+- Built-in mixing C and C++ support.
+- More...
 
 ## Quick Start
 
@@ -20,18 +34,18 @@ epic init project/
 mkdir output/
 epic pic-compile project/ -o output/ -m hello
 
-# 4. Link PIC code into standalone `payload.bin`
+# 4. Link PIC code into standalone payload.bin
 epic pic-link output/ -o output/ -m hello
 ```
 
-Great! The job is done. At this point you are ready to take the generated `payload.bin` and inject it into your custom shellcode loader or...
+That's it! At this point, you can take the generated `payload.bin` and inject it into your custom shellcode loader, or...
 
 ```bash
-# 5. [optional] Inject PIC payload and compile a simple loader template
+# 5. [Optional] Inject PIC payload and compile a simple loader template
 epic loader payload.bin -o output/
 ```
 
-The compiled `loader.exe` file is ready to be executed! If your payload works in this case, it means it will work everywhere.
+The compiled loader.exe is ready to execute. If your payload works here, it will work everywhere.
 
 ## Documentation
 
@@ -41,87 +55,89 @@ The compiled `loader.exe` file is ready to be executed! If your payload works in
 
 Example: `epic init project/`
 
-Create a project structure. It's a way to start a new PIC project. It includes basic example of usage. `<path>` is the target where project structure is created. It creates project in C++ but you can change it to C just changing file extensions and removing C++ features like namespaces. Built-in EPIC headers are compatbile with C and C++. IMPORTANT: It creates directories structure. Set `<path>` to a separate folder to keep things clean.
+Creates a project structure to start a new PIC project with basic usage examples. The `<path>` parameter specifies where the project structure will be created.
+
+> **HINT**: This command creates a directory structure, so set `<path>` to a separate directory to keep things organized.
 
 #### `pic-compile <path>`
 
 Example: `epic pic-compile project/ -o objects/`
 
-Compile all source files from project `<path>` and save object files in the `--output <path>`. IMPORTANT: The output structure of object files directly mimics project structure. Save them rather in a separate folder (let's say `output/`) just to keep things clean. It compiles all modules.
+Compiles all source files from the project at `<path>` and saves object files to the output directory. The output structure directly mirrors the project structure. This command compiles all modules.
+
+> **HINT**: Save object files to a separate folder (e.g., `output/`) to maintain a clean workspace.
 
 Flags:
 
-* `-o / --output <path>` [required] - path where the compiled objects file will be saved.
+* `-o / --output <path>` [required] – Output path for compiled object files.
 
 #### `pic-link <path>`
 
 Example: `epic pic-link objects/ -o output/`
 
-Link core and selected modules from `<path>` together into a standalone PIC payload. The `<path>` in this command is the output path of the `pic-compile` command. It links only those modules specified in `-m` flag.
+Links core and selected modules from `<path>` into a standalone PIC payload. The `<path>` parameter should point to the output directory from `pic-compile`. Only modules specified with the `-m` flag are linked.
 
-IMPORTANT: It creates also folder `assets/` in the output path where linker map, linker script and intermediate executable is stored. Just for a debugging purposes if you want to investigate what exactly is linked into your payload.
+> **HINT**: An `assets/` folder is created in the output path containing the linker map, linker script, and intermediate executable for debugging purposes.
 
 Flag:
 
-* `-o / --output <path>` [required] - path where the output payload will be saved.
-* `-m / --modules <modules>` - comma-separated list of modules to be linked. Modules are named after their folders in `modules/` directory.
+* `-o / --output <path>` [required] – Output path for the payload.
+* `-m / --modules <modules>` – Comma-separated list of modules to link (named after their folders in `modules/`).
 
 #### `loader <path>`
 
 Example: `epic loader output/payload.bin -o output/`
 
-Inject your `<path>` payload into loader template and compile to Windows executable. It's a great way to test and debug your payload in the wild quickly. If your PIC payload works with loader template it should work with your own custom loader.
+Injects your payload from `<path>` into a loader template and compiles it to a Windows executable. This is an excellent way to quickly test and debug your payload. If your PIC payload works with the loader template, it should work with your custom loader as well.
 
-IMPORTANT: It creates also folder `assets/` in the output path where the source `loader.c` is saved. This is the file that being compiled. You can check how it looks like and what it does.
+> **HINT**: An `assets/` folder is created in the output path containing the `loader.c` source file that gets compiled, allowing you to inspect the implementation.
 
 Flags:
 
-* `-o / --output <path>` [required] - path where the output loader executable is saved.
+* `-o / --output <path>` [required] – Output path for the loader executable.
 
 #### `monolith <path>`
 
 Example: `epic monolith project/ -o output/`
 
-Compile your project into standard non-PIC executable. In EPIC context it's called `monolith`. It's completely separated process from `pic-compile` and `pic-link`. Because it's a standard non-PIC executable you can use standard libc functions like `printf()` for debugging. Monolith is used for debugging and testing whether your payload does anything at all when you see nothing on the screen.
-
-It compiles all modules at once.
+Compiles your project into a standard non-PIC executable (called a "monolith" in EPIC). This is a completely separate process from pic-compile and pic-link. Since it's a standard executable, you can use standard libc functions like `printf()` for debugging. Monoliths are useful for debugging and verifying payload functionality when screen output is unavailable. This command compiles all modules at once.
 
 Flags:
 
-* `-o / --output <path>` [required] - path where the output monolith executable is saved.
+* `-o / --output <path>` [required] - Output path for the monolith executable.
 
 #### Global flags
 
-In addition to flags specific to a given command, there are several global flags that can be used with any command. All of them are optional.
+The following optional flags can be used with any command:
 
-* `--debug` - enable verbose debug mode.
-* `--mingw-w64-gcc <path>` - specify path to MinGW-w64 GCC tool.
-* `--mingw-w64-ld <path>` - specify path to MinGW-w64 ld tool.
-* `--mingw-w64-objcopy <path>` - specify path to MinGW-w64 objcopy tool.
-* `--no-banner` - disable EPIC banner.
-* `--no-color` - disable colors output.
+* `--debug` – Enable verbose debug mode.
+* `--mingw-w64-gcc <path>` – Specify path to MinGW-w64 GCC.
+* `--mingw-w64-ld <path>` – Specify path to MinGW-w64 ld.
+* `--mingw-w64-objcopy <path>` – Specify path to MinGW-w64 objcopy.
+* `--no-banner` - Disable EPIC banner.
+* `--no-color` - Disable colored output.
 
 ### EPIC Coding Guide
 
 #### Where to start?
 
-Use `epic init <path>` to create basic and correct EPIC project structure with all features, header files and entry point.
+Use `epic init <path>` to create a proper EPIC project structure with all features, header files, and entry point.
 
-Created structure:
+Project structure:
 
 ```text
 core/main.cpp    <-- Entry point to your code
 include/
-    libc/*       <-- All libc headers (PIC-compatbile)
-    win32/*      <-- All WinAPI headers (PIC-compatible)
-    epic.h       <-- All EPIC macros
+    libc/*       <-- libc headers (PIC-compatbile)
+    win32/*      <-- WinAPI headers (PIC-compatible)
+    epic.h       <-- EPIC macros
 modules/
     <your_module_1>/*
     <your_module_2>/*
     ...
 ```
 
-Entry point to your shellcode is placed in `core/main.cpp`. `main_pic()` is the function where you can start placing your code.
+Your shellcode entry point is in `core/main.cpp`. The `main_pic()` function is where you begin writing your code.
 
 ```c
 // EPIC: Entry point
@@ -130,16 +146,16 @@ SECOND_STAGE void main_pic() {
 }
 ```
 
-**IMPORTANT 1**: Nigdy nie implementuj funkcji o nazwie `main()`! Spowoduje to dziwne błędy. Szerzej wyjaśniam to w FAQ na dole.
+**IMPORTANT #1**: Never implement a function named `main()`! This will cause strange errors. See the FAQ section for a detailed explanation.
 
-**IMPORTANT 2**: Nie usuwaj funkcji `__main_pic()` i `WinMain`. Są one niezbędne do prawidłowej kompilacji.
+**IMPORTANT #2**: Do not remove the `__main_pic()` and `WinMain` functions. They are essential for proper compilation.
 
 #### Global variables
 
-W kodzie PIC nie możesz używać globalnych read-write variables:
+In PIC code, you cannot use global read-write variables:
 
 ```c
-// Global read-write variables are fobidden!
+// WRONG: Global read-write variables are fobidden!
 int counter = 5;
 
 void inc_counter() {
@@ -147,19 +163,19 @@ void inc_counter() {
 }
 ```
 
-Możesz używać jedynie globalnych stałych i stałych literałów:
+You can only use global constants and constant literals:
 
 ```c
-// This constant is allowed
+// OK: This constant is allowed
 const char *name = "EPIC";
 
 void calc() {
-    // This constant is also allowed
+    // OK: This constant is also allowed
     exec("calc.exe");
 }
 ```
 
-Globalne zmienne są jednak przydatne i potrafią znacznie uprościć kod. Na szczęście EPIC ma rozwiązanie!
+However, global variables are useful and can significantly simplify code. Fortunately, EPIC has a solution!
 
 ```c
 typedef struct {
@@ -182,17 +198,17 @@ SECOND_STAGE void main_pic() {
 }
 ```
 
-What sorcery is this?! It's a pretty simple compiler trick. EPIC uses one of the CPU registers to keep pointer to your local variable: `SAVE_GLOBAL(var)`. As long as your local variable is present on the stack you can access it using `GET_GLOBAL()` macro.
+What sorcery is this?! It's a simple compiler trick. EPIC uses a CPU register to store a pointer to your local variable via `SAVE_GLOBAL(var)`. As long as your local variable remains on the stack, you can access it using the `GET_GLOBAL()` macro.
 
-> **IMPORTANT 1**: Your variable must be on the stack, so the function that initialized your "global" variable cannot return. Therefore, I recommend always using `SAVE_GLOBAL(var)` right in `main_pic()`. This way you make it available to all other functions throughout the entire execution of your shellcode.
+> **IMPORTANT #1**: Your variable must remain on the stack, so the function that initializes your "global" variable cannot return. Therefore, always use `SAVE_GLOBAL(var)` directly in `main_pic()`. This makes it available to all other functions throughout your shellcode's execution.
 
-> **IMPORTANT 2**: You can use `SAVE_GLOBAL(var)` only once. This mechanism should be used exclusively for maintaining the global context. However, the size and content of the global context size is up to you.
+> **IMPORTANT #2**: You can only use `SAVE_GLOBAL(var)` once. This mechanism should exclusively maintain global context. However, the size and content of the global context are entirely up to you.
 
 #### Modularity
 
-Podstawowym featurem narzędzia EPIC jest modularność. Wystarczy raz skompilować kod (`pic-compile`) a następnie możesz łączyć ze sobą klocki podczas linkowania (`pic-link`) jak chcesz. Świetnie, ale jak ten sam kod może działać w obu przypadkach?
+Modularity is a core feature of EPIC. Compile your code once with `pic-compile`, then mix modules during linking with `pic-link` however you want. But how does the same code work with different modules?
 
-Otóż po pierwsze wszystkie eksportowane funkcje z modułu oznacz makrem `MODULE`. Wszystkie, bez wyjątku, to pozwoli Ci uniknąć debugowania w przyszłości. Przykładowo plik `modules/exec/exec.h` będzie wyglądał tak:
+First, mark all exported functions from a module with the `MODULE` macro. Mark all of them without exception to avoid future debugging headaches. For example, `modules/exec/exec.h` would look like this:
 
 ```c
 #include <epic.h>
@@ -200,7 +216,7 @@ Otóż po pierwsze wszystkie eksportowane funkcje z modułu oznacz makrem `MODUL
 MODULE int happy_little_function(char *arg);
 ```
 
-That's it. Teraz w innym miejscu w kodzie możesz sprawdzić czy moduł (a dokładnie dana funkcja) został załadowana.
+That's it. Now elsewhere in your code, you can check whether a module (specifically a function) is loaded using `EXISTS(func)` macro:
 
 ```c
 #include <epic.h>
@@ -213,23 +229,23 @@ void test() {
 }
 ```
 
-To potężny, ale bardzo prosty w użyciu mechanizm, dzięki któremu twój PIC projekt może być całkowicie modularny.
+This is a powerful yet simple mechanism that makes your PIC project fully modular.
 
-> **IMPORTANT**: Funkcja eksportowana z modułu MUSI być oznaczona tagiem  `MODULE`, inaczej pojawią się dziwne błędy, a makro `EXISTS(func)` nie zadziała.
+> **IMPORTANT**: Functions exported from a module MUST be marked with the `MODULE` tag, otherwise you'll encounter strange errors and the `EXISTS(func)` macro won't work.
 
-Każdy moduł musi znajdować się w osobnym folderze w `modules/`. Nazwy folderów to jednocześnie nazwy modułów, których używamy następnie z poleceniem `pic-link` w parametrze `-m` (np. `-m exec`). Zauważ, że pisząc modularny kod wystarczy, że raz skompilujemy projekt (`pic-compile`), a następnie możemy  modyfikować nasz PIC payload używając wielokrotnie `pic-link` z innym zestawem modułów!
+Each module must reside in a separate directory within `modules/`. Directory names serve as module names for the `pic-link` command's `-m` parameter (e.g., `-m exec`). Note that with modular code, you only need to compile once with `pic-compile`, then repeatedly use `pic-link` with different module combinations!
 
 #### Header files (`libc` and `win32`)
 
-Nie możesz używać biblioteki standardowej `libc`. Nie masz dostępu do żadnych normalnych funkcji tj. `printf()` lub `malloc()`, wszystko musisz sam sobie znaleźć w pamięci. Dlaczego? Szczegółowo wyjaśniłem to [w tym artykule](https://print3m.github.io/blog/x64-winapi-shellcoding).
+You cannot use the standard `libc` library. You don't have access to normal functions like `printf()` or `malloc()` – you must locate everything in memory yourself. Why? This is the basic principle of writing shellcode. I explain this in detail [in this article](https://print3m.github.io/blog/x64-winapi-shellcoding).
 
-Nie możesz używać domyślnych header files dla MinGW. Dlaczego? Long story short, jest to jeden wielki bloat, który dodaje fragmenty kodu, które powodują znacznie więcej problemów w przypadku PIC niż korzyści. Więcej o tym piszę w FAQ.
+You cannot use default MinGW header files. Why? Long story short, they contain massive bloat that adds code fragments causing far more problems than benefits in PIC code. See the FAQ for more details.
 
-Na szczęście EPIC daje Ci minimalistyczną PIC-compatible implementację `libc` i bardzo podstawowe headery `win32`. Znajdują się one w folderze `include/*` twojego projektu. Są one wygodne i w pełni bezpieczne do użycia w kodzie PIC. Oczywiście możesz je modyfikować w swoim projekcie jak chcesz, a nawet nie musisz w ogóle ich używać.
+Fortunately, EPIC provides a minimalist PIC-compatible `libc` implementation and basic `win32` headers. These are located in your project's `include/*` directory. They're convenient and completely safe for PIC code. You can modify them in your project as needed, or not use them at all.
 
-Wszystkie makra samego EPIC znajdują się w `include/epic.h`.
+All EPIC macros are in `include/epic.h`.
 
-Przykład importu w dowolnym miejscu projektu:
+Import example:
 
 ```c
 #include <libc/stdint.h>
@@ -237,9 +253,9 @@ Przykład importu w dowolnym miejscu projektu:
 #include <epic.h>
 ```
 
-#### Symbole preprocesora
+#### Preprocessor Symbols
 
-Kiedy używasz polecenia `monolith` kompilator automatycznie definiuje symbol preprocesora `MONOLITH`. Możesz go użyć do pisania kodu tylko pod kompilację monolith. Przykład:
+When using the `monolith` command, the compiler automatically defines the `MONOLITH` preprocessor symbol. Use it to write code specifically for monolith compilation:
 
 ```c
 #ifdef MONOLITH
@@ -253,88 +269,96 @@ void func() {
 }
 ```
 
-Kiedy używasz `pic-compile` kompilator definiuje symbol preprocesora `PIC`. Jest to mniej przydatne, ale możesz go użyć do wykluczenia czegoś z kompilacji `monolith`.
+When using `pic-compile`, the compiler defines the `PIC` preprocessor symbol. This is less common but useful for excluding code from monolith compilation.
 
 #### Mixing C and C++
 
-It's possible to use C, C++ or both in the same project. Just calling C++ functions from C remember to use `extern "C"` in the header of C++ function to avoid name mangling and linking errors. I generally recommend to stick to one of these languages for the entire project but you are free human being.
+You can use C, C++, or both in the same project. When calling C++ functions from C, remember to use `extern "C"` in the C++ function header to avoid name mangling and linking errors. I generally recommend sticking to one language for the entire project, but you're a free human being.
 
-### Troubleshooting
+#### Other shellcode quirks
 
-1. Clean directory with your object file and run `pic-compile` + `pic-link` again.
-2. Test monolith version (more reliable).
-3. Check if you follow EPIC Shellcoding Guide.
-4. Run `--debug`.
-5. Check linker map.
+You cannot use C++ exceptions. They will not work.
 
-### EPIC Limitations
-
-* Supported platform: x86-64
-* C / C++ languages
+However, you can use switch statements, string literals (both: `"test"` and `L"test`), C++ namespaces, templates and inline assembly. They will run normally.
 
 ### FAQ
 
-#### Funkcja importowana z modułu się nie wykonuje
+#### Troubleshooting
 
-Sprawdź linker map file w `assets/` (po wykonaniu `pic-link`) czy ta funkcja w ogóle jest linkowana do finalnego PIC payloadu. Jeśli jest linkowana, to problem na 95% jest w twoim kodzie. To znaczy, że z jakiegoś powodu doszło do dead code elimination. Sprawdź czy nie wywołujesz funkcji C++ z kodu C bez `extern "C"`.
+1. Rebuild from scratch – Clean your object files directory and run `pic-compile` + `pic-link` again
+2. Test with `monolith` – Compile a monolith version with debugging code to verify basic functionality.
+3. Review your code – Ensure you're following all EPIC Coding Guide rules.
+4. Inspect the linker map – Check the linker map in `assets/` after running `pic-link` to verify which functions are included in the final payload.
+5. Enable debug output – Run with the `--debug` flag to see detailed compilation and linking information.
 
-#### Czy muszę używać inline functions w shellcode?
+If nothing helps, you are cooked.
 
-Nie. Stosuj funkcje jak chesz, tak jak w normalnym kodzie, pamiętaj tylko, żeby funkcje eksportowane z modułu oznaczać makrem `MODULE`.
+#### EPIC Limitations
 
-### Co to jest `monolith`?
+* Supported architecture: x86-64 only
+* Supported languages: C and C++
 
-Monolith is simply a compilation of your entire project, just like any other non-PIC code. Monolith is a standard `.exe` file that can use the standard library, global variables, and so on. So why use `monolith`? For debugging purposes only :)
+#### Module function doesn't execute
+
+Check the linker map file in `assets/` (generated after running `pic-link`) to verify the function is linked into the final PIC payload. If it's linked but still not executing, the issue is most likely in your code (96.5% probability). This typically indicates dead code elimination occurred. Verify you're not calling C++ functions from C code without using `extern "C"`.
+
+#### Do I need to use `inline` functions in shellcode?
+
+No. Use functions normally as you would in regular code. Just remember to mark functions exported from modules with the `MODULE` macro.
+
+### What is `monolith`?
+
+Monolith is simply a compilation of your entire project as standard non-PIC code. It's a normal `.exe` file that can use the standard library, global variables, and all typical language features. The purpose of monolith is debugging — it allows you to test your payload logic with standard debugging tools like `printf()`.
 
 #### Why are global variables not usable in PIC payload?
 
-Zmienne globalne potrzebują pamięci typu RW, żeby działać. Istotą shellcode'u jest to, że wystarczy zaalokować pamięć RX i go wykonać, nie trzeba martwić się o specjalne sekcje RW. Istnieją pewne tricki np. wykorzystany w Stardust project, który polega na tym, że shellcode już w trakcie wykonania sam sobie zmienia uprawnienia do sekcji `.bss` i `.data`, że by móc korzystać ze zmiennych globalnych.
+Global variables require read-write (RW) memory sections to function. The essence of shellcode is that you only need to allocate executable (RX) memory and run it — no special RW sections required.
 
-To podejście ma jednak wady, których chciałem uniknąć:
+There are workarounds, such as the technique used in the Stardust project, where shellcode modifies its own `.bss` and `.data` section permissions at runtime to enable global variables. However, this approach has drawbacks I wanted to avoid:
 
-1. Podejście wymaga dodatkowego kodu ;p
-2. Shellcode musi wykonać funkcję Windows API do zmiany uprawnień stron pamięci. Jest to dodatkowa informacja dla kernela. Chciałem tego uniknąć.
-3. Po trzecie shellcode musi być trochę większy, żeby sekcja `.bss` i `.data` zaczynały się od nowej strony pamięci.
+1. It requires additional code.
+2. The shellcode must call Windows API functions to change memory page permissions, providing extra information to the kernel.
+3. The shellcode must be a little bit larger to ensure `.bss` and `.data` sections start on new memory pages.
 
-Po to stworzyłem CPU-based global variable...
+This is why I created the CPU register-based global variable mechanism instead.
 
 #### Why are `pic-compile` and `pic-link` separate commands?
 
-Możesz raz skompilować, ale wielokrotnie linkować do różnych modułów tworząc za każdym razem unikatowy shellcode.
+This separation enables you to compile once but link multiple times with different module combinations, creating a new shellcode each time without recompiling.
 
 #### Why is PIC extracted from a PE file?
 
-Dead code elimination doesn't work for linker output "binary".
+You can use the "binary" format as the linker output, but then dead code elimination doesn't work.
 
-To hack this I use MinGW-w64 toolchain `gcc` with custom linker script (`ld`) to PE and then extracting PIC `.text` section using `objcopy` to final `payload.bin` output. It works like a charm. This way the final payload is smaller then ever.
+To work around this, I use the MinGW-w64 toolchain (`gcc`) with a custom linker script (`ld`) to produce a PE file, then extract the PIC `.text` section using `objcopy` to create the final `payload.bin`. This approach works excellently and produces the smallest possible payload.
 
-#### Do I have to manually align the stack before calling a Windows API?
+#### Do I have to manually align the stack before calling Windows API?
 
-Nie, Mingw robi to automatycznie. Musisz jednak oznaczyć każdą funkcję Windows API makrem `WINAPI`.
+No, MinGW handles stack alignment automatically. However, you must mark every Windows API function with the `WINAPI` macro.
 
 #### Why is the entry point called `__main_pic` and not simply `main()`?
 
-If you implement `main()` function no matter how hard I tried it's always treated special by GCC compiler. No matter how many compiler flags, function attributes and linker scripting I used there's always generated unnecessary call to `__main()` at the beginning of `main()`. It means you need to implement this stupid `__main()` somehow, otherwise there's an linker error. The reason for this is behaviour is unknown and I found no way to disable it.
+When implementing a `main()` function, GCC always treats it specially regardless of compiler flags, function attributes, or linker script configurations. It invariably generates an unnecessary call to `__main()` at the beginning of `main()`, requiring you to implement a dummy `__main()` function to avoid linker errors. The reason for this behavior is unknown and I found no way to disable it.
 
-Solution to this problem is using `main()` as entry point and implement dummy empty `__main() {}` function. It works, but honestly I wanted my code to be as clean as possible with no dummy functions!
+One solution is using `main()` as the entry point and implementing an empty `__main() {}` function. While this works, I wanted the code to be as clean as possible without dummy functions.
 
-Another solution is not to use `main()` at all. I created `__main_pic()` function and EPIC uses it as an entry point. It works flawlessly.
+The better solution is avoiding `main()` entirely. I created the `__main_pic()` function as the entry point instead, and it works flawlessly.
 
-#### Why does EPIC implement its own `libc` and `win32` headers instead of using those from MinGW?
+#### Why does EPIC implement its own `libc` and `win32` headers instead of using MinGW's?
 
-Oczywiście shellcode nie może mieć żadnych zależności, ale teoretycznie EPIC mógłby używać definicji typów i makr z domyślnych plików nagłówkowych MinGW, prawda? Nie, ponieważ domyślne header files są jednym wielkim bloatem, śmietnikiem i dodają kod bez Twojej wiedzy. Powodują błędy w kompilacji, nawet jeśli używasz tylko definicji typów i makr. Poza tym zachęcają do używania funkcji, których nie możesz użyć, np, `printf()`.
+Obviously, shellcode cannot have external dependencies, but theoretically EPIC could use type definitions and macros from default MinGW headers, right? Wrong. Default header files are bloated and add code without your knowledge, causing compilation errors even when you only use type definitions and macros. They also encourage using functions that are unavailable in shellcode, like `printf()`.
 
-Just including default Windows MinGW-w64 header files throws some errors during compilation. For example, it requires SSE to be enabled to compile successfully and I want it to be disabled. This is the reason why I don't use default Windows headers but include only custom ones.
+Simply including default Windows MinGW-w64 headers throws compilation errors with EPIC compiler flags. For example, they require SSE to be enabled, which I want disabled. This is why EPIC provides custom headers instead of using default ones – to have full control over your code.
 
 #### Can I check exactly which functions are linked to the PIC payload?
 
-Tak.
+Yes. EPIC automatically generates a linker map after running `pic-link`, saved in the `assets/` directory.
 
-It's possible to generate map of linked sections. Great tool for deep inspection of linker's work. Use `-Map=linker.map` parameter. This file shows which sections (section == function when used with `-ffunction-sections`) are discarded and which are linked into the final payload. It shows the layout of linked sections and their size. Great tool for debugging.
+This map shows which sections (when using `-ffunction-sections`, each section represents a function) are discarded and which are linked into the final payload. It displays the layout of linked sections and their sizes — an excellent debugging tool for deep inspection of the linker's work.
 
 #### Can I manually disassemble the PIC payload?
 
-Yes. Use this command:
+Yes. Use the following command:
 
 ```bash
 objdump -D -b binary -m i386:x86-64 -M intel payload.bin

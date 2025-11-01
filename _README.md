@@ -1,20 +1,19 @@
-# EPIC - Extensible Position Independent Code
+# EPIC — Extensible Position Independent Code Framework
 
-EPIC (Extensible Position Independent Code) – implant development and shellcode building framework with modularity in mind.
+EPIC (Extensible Position Independent Code) – implant development and shellcode-building framework designed for developer experience, predictability, and modularity.
 
-- Picest pic of the pics in the world.
-- Monolith (non-PIC EXE) version always include all modules.
-- Switch statements are available.
-- It's modular by default.
-- PIC and monolith code in the same repository.
-- CPU-based global variable with no R/W memory allocations. Built-in support for global context via dedicated CPU register.
-- String literals supported: "TEST and L"TEST".
-- No code generation and hidden quirks.
-- Built-in dead-code elimination - smallest payloads on the market.
-- One code base for debugging and production
-- Extremely predictable PIC code, no magic, no implicit code includes.
-- C / C++ support. It automatically detects source files: `.c` and `.cpp`. You can mix them together but keep in mind that C++ does name mangling. If you want to export some C++ function to C code or otherway around you need to use `extern "C"` in the header stub of this function. There's no need to change anything in the `<epic.h>` or anything, you just need to change from `.c` to `.cpp`. There are of course limitations of C++ features you can use in your code (TODO: Describe those features).
-- Built-in minimalistic libc suitable for shellcode development
+EPIC transforms complex shellcode engineering into a seamless process — building fully position-independent payloads with zero hidden magic, zero heap reliance, and maximal clarity. Whether you’re crafting stealth implants or high-level modular payloads, EPIC ensures your binaries remain elegant, efficient, and exact.
+
+- Built-in modularity – you choose what you want to include.
+- Built-in global context support – no memory permission changes!
+- Built-in dead-code elimination – the smallest payload on the market.
+- Predictable PIC generation — no implicit syscalls, no unexpected code.
+- Built-in minimal `libc` and `win32` written for PIC compatibility.
+- Built-in mixing C and C++ support.
+- More...
+
+// - A stable and convenient tool for building your project. 
+TODO: wygodny i przewidywalny CI/CD
 
 ## Interesting Observations
 
