@@ -16,7 +16,7 @@ EPIC is a robust single-executable toolkit for the complete PIC shellcode develo
 
 ## Quick Start
 
-Download EPIC from [release page](http://Test.pl). It's a single executable tool.
+Download compiled EPIC binary from [release page](https://github.com/Print3M/epic/releases).
 
 Requirements:
 
@@ -55,7 +55,7 @@ The compiled `loader.exe` is ready to execute. If your payload works here, it wi
 
 Example: `epic init project/`
 
-Creates a project structure to start a new PIC project with basic usage examples. The `<path>` parameter specifies where the project structure will be created.
+Creates a project structure to start a new PIC project with basic usage example. The `<path>` parameter specifies where the project structure will be created.
 
 > **HINT**: This command creates a directory structure, so set `<path>` to a separate directory to keep things organized.
 
@@ -80,7 +80,7 @@ Links core and selected modules from `<path>` into a standalone PIC payload. The
 
 > **HINT**: An `assets/` folder is created in the output path containing the linker map, linker script, and intermediate executable for debugging purposes.
 
-Flag:
+Flags:
 
 - `-o / --output <path>` [required] – Output path for the payload.
 - `-m / --modules <modules>` – Comma-separated list of modules to link (named after their folders in `modules/`).
@@ -280,9 +280,21 @@ You can use C, C++, or both in the same project. When calling C++ functions from
 
 ### Other shellcode quirks
 
-You cannot use C++ exceptions. They will not work.
+You cannot use:
 
-However, you can use switch statements, string literals (both: `"test"` and `L"test`), C++ namespaces, templates and inline assembly. They will run normally.
+- global read-write variables,
+- standard libc or libc++ functions,
+- C++ exceptions (`throw`/`try`/`catch`),
+- C++ `typeid` mechanism,
+- C++ `new`/`delete` operators.
+
+You can use (if you had any doubts):
+
+- switch statements,
+- global constants and literals (both: `"test"` and `L"test`),
+- inline assembly,
+- C++ namespaces,
+- C++ templates.
 
 ---
 
