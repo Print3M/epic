@@ -4,12 +4,12 @@ EPIC (*Extensible Position Independent Code*) – PIC shellcode development and 
 
 ![EPIC flow chart](_img/img-1.jpg)
 
-EPIC is a robust single-executable toolkit for the complete PIC shellcode development workflow — offering quick project initialization, compilation, and payload linking with a rich set of built‑in features. It makes building stealth modular implants effortless.
+EPIC is a robust single-executable toolkit for the complete PIC shellcode development workflow – offering quick project initialization, compilation, and payload linking with a rich set of built‑in features. It makes building stealth modular implants effortless.
 
 - Built-in modularity – you choose what you want to include.
 - Built-in global context support – no memory permission changes!
 - Built-in dead-code elimination – the smallest payload on the market.
-- Predictable PIC compilation — no implicit syscalls, no unexpected code.
+- Predictable PIC compilation – no implicit syscalls, no unexpected code.
 - Built-in minimal `libc` and `win32` written for PIC compatibility.
 - Built-in C and C++ (and mixing) support.
 - More...
@@ -326,11 +326,11 @@ No. Use functions normally as you would in regular code. Just remember to mark f
 
 ### What is `monolith`?
 
-Monolith is simply a compilation of your entire project as standard non-PIC code. It's a normal `.exe` file that can use the standard library, global variables, and all typical language features. The purpose of monolith is debugging — it allows you to test your payload logic with standard debugging tools like `printf()`.
+Monolith is simply a compilation of your entire project as standard non-PIC code. It's a normal `.exe` file that can use the standard library, global variables, and all typical language features. The purpose of monolith is debugging – it allows you to test your payload logic with standard debugging tools like `printf()`.
 
 ### Why are global variables not usable in PIC payload?
 
-Global variables require read-write (RW) memory sections to function. The essence of shellcode is that you only need to allocate executable (RX) memory and run it — no special RW sections required.
+Global variables require read-write (RW) memory sections to function. The essence of shellcode is that you only need to allocate executable (RX) memory and run it – no special RW sections required.
 
 There are workarounds, such as the technique used in the Stardust project, where shellcode modifies its own `.bss` and `.data` section permissions at runtime to enable global variables. However, this approach has drawbacks I wanted to avoid:
 
@@ -372,7 +372,7 @@ Simply including default Windows MinGW-w64 headers throws compilation errors wit
 
 Yes. EPIC automatically generates a linker map after running `pic-link`, saved in the `assets/` directory.
 
-This map shows which sections (when using `-ffunction-sections`, each section represents a function) are discarded and which are linked into the final payload. It displays the layout of linked sections and their sizes — an excellent debugging tool for deep inspection of the linker's work.
+This map shows which sections (when using `-ffunction-sections`, each section represents a function) are discarded and which are linked into the final payload. It displays the layout of linked sections and their sizes – an excellent debugging tool for deep inspection of the linker's work.
 
 ### Can I manually disassemble the PIC payload?
 
