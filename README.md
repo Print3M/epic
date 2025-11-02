@@ -47,11 +47,11 @@ epic loader payload.bin -o output/
 
 The compiled `loader.exe` is ready to execute. If your payload works here, it will work everywhere.
 
-## Documentation
+---
 
-### EPIC Commands
+## EPIC Commands
 
-#### `init <path>`
+### `init <path>`
 
 Example: `epic init project/`
 
@@ -59,7 +59,7 @@ Creates a project structure to start a new PIC project with basic usage examples
 
 > **HINT**: This command creates a directory structure, so set `<path>` to a separate directory to keep things organized.
 
-#### `pic-compile <path>`
+### `pic-compile <path>`
 
 Example: `epic pic-compile project/ -o objects/`
 
@@ -72,7 +72,7 @@ Flags:
 - `-o / --output <path>` [required] – Output path for compiled object files.
 - `--strict` – Enable all compiler checks (`-Wall`, `-Wextra`, `-pedantic`).
 
-#### `pic-link <path>`
+### `pic-link <path>`
 
 Example: `epic pic-link objects/ -o output/`
 
@@ -85,7 +85,7 @@ Flag:
 - `-o / --output <path>` [required] – Output path for the payload.
 - `-m / --modules <modules>` – Comma-separated list of modules to link (named after their folders in `modules/`).
 
-#### `loader <path>`
+### `loader <path>`
 
 Example: `epic loader output/payload.bin -o output/`
 
@@ -97,7 +97,7 @@ Flags:
 
 - `-o / --output <path>` [required] – Output path for the loader executable.
 
-#### `monolith <path>`
+### `monolith <path>`
 
 Example: `epic monolith project/ -o output/`
 
@@ -107,7 +107,7 @@ Flags:
 
 - `-o / --output <path>` [required] - Output path for the monolith executable.
 
-#### Global flags
+### Global flags
 
 The following optional flags can be used with any command:
 
@@ -118,9 +118,11 @@ The following optional flags can be used with any command:
 - `--no-banner` - Disable EPIC banner.
 - `--no-color` - Disable colored output.
 
-### EPIC Coding Guide
+---
 
-#### Where to start?
+## EPIC Coding Guide
+
+### Where to start?
 
 Use `epic init <path>` to create a proper EPIC project structure with all features, header files, and entry point.
 
@@ -151,7 +153,7 @@ SECOND_STAGE void main_pic() {
 
 **IMPORTANT #2**: Do not remove the `__main_pic()` and `WinMain` functions. They are essential for proper compilation.
 
-#### Global variables
+### Global variables
 
 In PIC code, you cannot use global read-write variables:
 
@@ -205,7 +207,7 @@ What sorcery is this?! It's a simple compiler trick. EPIC uses a CPU register to
 
 > **IMPORTANT #2**: You can only use `SAVE_GLOBAL(var)` once. This mechanism should exclusively maintain global context. However, the size and content of the global context are entirely up to you.
 
-#### Modularity
+### Modularity
 
 Modularity is a core feature of EPIC. Compile your code once with `pic-compile`, then mix modules during linking with `pic-link` however you want. But how does the same code work with different modules?
 
@@ -236,7 +238,7 @@ This is a powerful yet simple mechanism that makes your PIC project fully modula
 
 Each module must reside in a separate directory within `modules/`. Directory names serve as module names for the `pic-link` command's `-m` parameter (e.g., `-m exec`). Note that with modular code, you only need to compile once with `pic-compile`, then repeatedly use `pic-link` with different module combinations!
 
-#### Header files (`libc` and `win32`)
+### Header files (`libc` and `win32`)
 
 You cannot use the standard `libc` library. You don't have access to normal functions like `printf()` or `malloc()` – you must locate everything in memory yourself. Why? This is the basic principle of writing shellcode. I explain this in detail [in this article](https://print3m.github.io/blog/x64-winapi-shellcoding).
 
@@ -254,7 +256,7 @@ Import example:
 #include <epic.h>
 ```
 
-#### Preprocessor Symbols
+### Preprocessor Symbols
 
 When using the `monolith` command, the compiler automatically defines the `MONOLITH` preprocessor symbol. Use it to write code specifically for monolith compilation:
 
@@ -272,19 +274,21 @@ void func() {
 
 When using `pic-compile`, the compiler defines the `PIC` preprocessor symbol. This is less common but useful for excluding code from monolith compilation.
 
-#### Mixing C and C++
+### Mixing C and C++
 
 You can use C, C++, or both in the same project. When calling C++ functions from C, remember to use `extern "C"` in the C++ function header to avoid name mangling and linking errors. I generally recommend sticking to one language for the entire project, but you're a free human being.
 
-#### Other shellcode quirks
+### Other shellcode quirks
 
 You cannot use C++ exceptions. They will not work.
 
 However, you can use switch statements, string literals (both: `"test"` and `L"test`), C++ namespaces, templates and inline assembly. They will run normally.
 
-### FAQ
+---
 
-#### Troubleshooting
+## FAQ
+
+### Troubleshooting
 
 1. Rebuild from scratch – Clean your object files directory and run `pic-compile` + `pic-link` again
 2. Test with `monolith` – Compile a monolith version with debugging code to verify basic functionality.
@@ -294,17 +298,17 @@ However, you can use switch statements, string literals (both: `"test"` and `L"t
 
 If nothing helps, you are cooked.
 
-#### EPIC Limitations
+### EPIC Limitations
 
 - Supported target OS: Windows
 - Supported architecture: x86-64
 - Supported languages: C and C++
 
-#### Module function doesn't execute
+### Module function doesn't execute
 
 Check the linker map file in `assets/` (generated after running `pic-link`) to verify the function is linked into the final PIC payload. If it's linked but still not executing, the issue is most likely in your code (96.5% probability). This typically indicates dead code elimination occurred. Verify you're not calling C++ functions from C code without using `extern "C"`.
 
-#### Do I need to use `inline` functions in shellcode?
+### Do I need to use `inline` functions in shellcode?
 
 No. Use functions normally as you would in regular code. Just remember to mark functions exported from modules with the `MODULE` macro.
 
@@ -312,7 +316,7 @@ No. Use functions normally as you would in regular code. Just remember to mark f
 
 Monolith is simply a compilation of your entire project as standard non-PIC code. It's a normal `.exe` file that can use the standard library, global variables, and all typical language features. The purpose of monolith is debugging — it allows you to test your payload logic with standard debugging tools like `printf()`.
 
-#### Why are global variables not usable in PIC payload?
+### Why are global variables not usable in PIC payload?
 
 Global variables require read-write (RW) memory sections to function. The essence of shellcode is that you only need to allocate executable (RX) memory and run it — no special RW sections required.
 
@@ -324,21 +328,21 @@ There are workarounds, such as the technique used in the Stardust project, where
 
 This is why I created the CPU register-based global variable mechanism instead.
 
-#### Why are `pic-compile` and `pic-link` separate commands?
+### Why are `pic-compile` and `pic-link` separate commands?
 
 This separation enables you to compile once but link multiple times with different module combinations, creating a new shellcode each time without recompiling.
 
-#### Why is PIC extracted from a PE file?
+### Why is PIC extracted from a PE file?
 
 You can use the "binary" format as the linker output, but then dead code elimination doesn't work.
 
 To work around this, I use the MinGW-w64 toolchain (`gcc`) with a custom linker script (`ld`) to produce a PE file, then extract the PIC `.text` section using `objcopy` to create the final `payload.bin`. This approach works excellently and produces the smallest possible payload.
 
-#### Do I have to manually align the stack before calling Windows API?
+### Do I have to manually align the stack before calling Windows API?
 
 No, MinGW handles stack alignment automatically. However, you must mark every Windows API function with the `WINAPI` macro.
 
-#### Why is the entry point called `__main_pic` and not simply `main()`?
+### Why is the entry point called `__main_pic` and not simply `main()`?
 
 When implementing a `main()` function, GCC always treats it specially regardless of compiler flags, function attributes, or linker script configurations. It invariably generates an unnecessary call to `__main()` at the beginning of `main()`, requiring you to implement a dummy `__main()` function to avoid linker errors. The reason for this behavior is unknown and I found no way to disable it.
 
@@ -346,19 +350,19 @@ One solution is using `main()` as the entry point and implementing an empty `__m
 
 The better solution is avoiding `main()` entirely. I created the `__main_pic()` function as the entry point instead, and it works flawlessly.
 
-#### Why does EPIC implement its own `libc` and `win32` headers instead of using MinGW's?
+### Why does EPIC implement its own `libc` and `win32` headers instead of using MinGW's?
 
 Obviously, shellcode cannot have external dependencies, but theoretically EPIC could use type definitions and macros from default MinGW headers, right? Wrong. Default header files are bloated and add code without your knowledge, causing compilation errors even when you only use type definitions and macros. They also encourage using functions that are unavailable in shellcode, like `printf()`.
 
 Simply including default Windows MinGW-w64 headers throws compilation errors with EPIC compiler flags. For example, they require SSE to be enabled, which I want disabled. This is why EPIC provides custom headers instead of using default ones – to have full control over your code.
 
-#### Can I check exactly which functions are linked to the PIC payload?
+### Can I check exactly which functions are linked to the PIC payload?
 
 Yes. EPIC automatically generates a linker map after running `pic-link`, saved in the `assets/` directory.
 
 This map shows which sections (when using `-ffunction-sections`, each section represents a function) are discarded and which are linked into the final payload. It displays the layout of linked sections and their sizes — an excellent debugging tool for deep inspection of the linker's work.
 
-#### Can I manually disassemble the PIC payload?
+### Can I manually disassemble the PIC payload?
 
 Yes. Use the following command:
 
