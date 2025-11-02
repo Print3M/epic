@@ -12,6 +12,7 @@ import (
 type PICCompiler struct {
 	ProjectPath string
 	OutputPath  string
+	Strict      bool
 }
 
 func (pc *PICCompiler) ValidateProjectPath() error {
@@ -140,6 +141,10 @@ func (pc *PICCompiler) compileProjectDirectory(targetDir string) {
 			params = append(params, "-std=c++20", "-fno-rtti")
 		default:
 			params = append(params, "-std=c17")
+		}
+
+		if pc.Strict {
+			params = append(params, "-Wall", "-Wextra", "-pedantic")
 		}
 
 		output := utils.MingwGcc(params...)

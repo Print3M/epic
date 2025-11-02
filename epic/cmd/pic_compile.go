@@ -54,6 +54,7 @@ func init() {
 	rootCmd.AddCommand(compileCmd)
 
 	compileCmd.Flags().StringVarP(&pc.OutputPath, "output", "o", "", "output path (required)")
+	compileCmd.Flags().BoolVar(&pc.Strict, "strict", false, "enable all compiler checks (-Wall, -Wextra, -pedantic)")
 
 	// Mark required flags
 	if err := compileCmd.MarkFlagRequired("output"); err != nil {

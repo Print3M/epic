@@ -1,27 +1,27 @@
 # EPIC
 
-EPIC (*Extensible Position Independent Code*) ...
+EPIC (*Extensible Position Independent Code*) – PIC shellcode development and building framework designed for developer experience, predictability, and modularity. *Write code, EPIC will take care of the rest!*
 
-// TODO: IMG ze schematem działania
+![EPIC flow chart](_img/img-1.jpg)
 
-// TODO: Short description - what problem it solves.
-// TODO: Features
-
-EPIC (Extensible Position Independent Code) – implant development and shellcode-building framework designed for developer experience, predictability, and modularity.
-
-// TODO: A stable and convenient tool for building your project.
-
-EPIC transforms complex shellcode engineering into a seamless process — building fully position-independent payloads with zero hidden magic, zero heap reliance, and maximal clarity. Whether you’re crafting stealth implants or high-level modular payloads, EPIC ensures your binaries remain elegant, efficient, and exact.
+EPIC is a robust single-executable toolkit for the complete PIC shellcode development workflow — offering quick project initialization, compilation, and payload linking with a rich set of built‑in features. It makes building stealth modular implants effortless.
 
 - Built-in modularity – you choose what you want to include.
 - Built-in global context support – no memory permission changes!
 - Built-in dead-code elimination – the smallest payload on the market.
-- Predictable PIC generation — no implicit syscalls, no unexpected code.
+- Predictable PIC compilation — no implicit syscalls, no unexpected code.
 - Built-in minimal `libc` and `win32` written for PIC compatibility.
-- Built-in mixing C and C++ support.
+- Built-in C and C++ (and mixing) support.
 - More...
 
 ## Quick Start
+
+Download EPIC from [release page](http://Test.pl). It's a single executable tool.
+
+Requirements:
+
+- Windows, Linux, or MacOS
+- Latest MinGW-w64 tool-chain (`gcc`, `ld`, `objcopy`)
 
 ```bash
 # 1. Create initial project structure
@@ -45,7 +45,7 @@ That's it! At this point, you can take the generated `payload.bin` and inject it
 epic loader payload.bin -o output/
 ```
 
-The compiled loader.exe is ready to execute. If your payload works here, it will work everywhere.
+The compiled `loader.exe` is ready to execute. If your payload works here, it will work everywhere.
 
 ## Documentation
 
@@ -69,7 +69,8 @@ Compiles all source files from the project at `<path>` and saves object files to
 
 Flags:
 
-* `-o / --output <path>` [required] – Output path for compiled object files.
+- `-o / --output <path>` [required] – Output path for compiled object files.
+- `--strict` – Enable all compiler checks (`-Wall`, `-Wextra`, `-pedantic`).
 
 #### `pic-link <path>`
 
@@ -81,8 +82,8 @@ Links core and selected modules from `<path>` into a standalone PIC payload. The
 
 Flag:
 
-* `-o / --output <path>` [required] – Output path for the payload.
-* `-m / --modules <modules>` – Comma-separated list of modules to link (named after their folders in `modules/`).
+- `-o / --output <path>` [required] – Output path for the payload.
+- `-m / --modules <modules>` – Comma-separated list of modules to link (named after their folders in `modules/`).
 
 #### `loader <path>`
 
@@ -94,7 +95,7 @@ Injects your payload from `<path>` into a loader template and compiles it to a W
 
 Flags:
 
-* `-o / --output <path>` [required] – Output path for the loader executable.
+- `-o / --output <path>` [required] – Output path for the loader executable.
 
 #### `monolith <path>`
 
@@ -104,18 +105,18 @@ Compiles your project into a standard non-PIC executable (called a "monolith" in
 
 Flags:
 
-* `-o / --output <path>` [required] - Output path for the monolith executable.
+- `-o / --output <path>` [required] - Output path for the monolith executable.
 
 #### Global flags
 
 The following optional flags can be used with any command:
 
-* `--debug` – Enable verbose debug mode.
-* `--mingw-w64-gcc <path>` – Specify path to MinGW-w64 GCC.
-* `--mingw-w64-ld <path>` – Specify path to MinGW-w64 ld.
-* `--mingw-w64-objcopy <path>` – Specify path to MinGW-w64 objcopy.
-* `--no-banner` - Disable EPIC banner.
-* `--no-color` - Disable colored output.
+- `--debug` – Enable verbose debug mode.
+- `--mingw-w64-gcc <path>` – Specify path to MinGW-w64 GCC.
+- `--mingw-w64-ld <path>` – Specify path to MinGW-w64 ld.
+- `--mingw-w64-objcopy <path>` – Specify path to MinGW-w64 objcopy.
+- `--no-banner` - Disable EPIC banner.
+- `--no-color` - Disable colored output.
 
 ### EPIC Coding Guide
 
@@ -295,8 +296,9 @@ If nothing helps, you are cooked.
 
 #### EPIC Limitations
 
-* Supported architecture: x86-64 only
-* Supported languages: C and C++
+- Supported target OS: Windows
+- Supported architecture: x86-64
+- Supported languages: C and C++
 
 #### Module function doesn't execute
 
@@ -366,5 +368,5 @@ objdump -D -b binary -m i386:x86-64 -M intel payload.bin
 
 ## Credits
 
-* c-to-shellcode.py
-* Stardust
+- [Stardust by 5pider](https://github.com/Cracked5pider/Stardust) for inspiration.
+- - [c-to-shellcode.py](https://github.com/Print3M/c-to-shellcode) – EPIC is basically a follow-up to my previous PoC.
