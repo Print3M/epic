@@ -6,8 +6,8 @@ EPIC (*Extensible Position Independent Code*) – PIC shellcode development and 
 
 EPIC is a robust single-executable toolkit for the complete PIC shellcode development workflow – offering quick project initialization, compilation, and payload linking with a rich set of built‑in features. It makes building stealth modular implants effortless.
 
-- Built-in modularity – you choose what you want to include.
-- Built-in global context support – no memory permission changes!
+- Built-in modularity – you choose what you want to include!
+- Built-in global context support – no memory permission changes.
 - Built-in dead-code elimination – the smallest payload on the market.
 - Predictable PIC compilation – no implicit syscalls, no unexpected code.
 - Built-in minimal `libc` and `win32` written for PIC compatibility.
@@ -140,7 +140,7 @@ modules/
     ...
 ```
 
-Your shellcode entry point is in `core/main.cpp`. The `main_pic()` function is where you begin writing your code.
+Your shellcode entry point is in `core/main.cpp`. The `main_pic()` function is where you begin writing your code. The `core/` directory has special significance because it is always linked to every payload, unlike `modules/`, which you have control over.
 
 ```c
 // EPIC: Entry point

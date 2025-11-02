@@ -8,26 +8,33 @@ typedef struct {
 	const char *message;
 	void *start;
 	void *end;
-} Context;
+} GlobalCtx;
 
 void child_func() {
-	auto ctx = (Context *) GET_GLOBAL();
+	GlobalCtx* ctx = (GlobalCtx *) GET_GLOBAL();
 	
 	hello::message(ctx->message);
 }
 
 // EPIC: Entry point
 SECOND_STAGE void main_pic() {
-	Context ctx;
+	GlobalCtx ctx;
 	SAVE_GLOBAL(ctx);
-
+	
 	ctx.message = "Hello EPIC!";
-
+	
 	child_func();
 }
 
+// TODO: Add banner "Don't touch"
+
 // EPIC: Do not remove!
+extern "C" const size_t __shellcode_size;
+extern "C" const void * __shellcode_start;
+extern "C" void * __shellcode_end;
+
 FIRST_STAGE void __main_pic() {
+	// TODO: Get start address of your payload
 	__asm__ volatile(
 		"push %rsi\n"
 		"mov %rsp, %rsi\n"

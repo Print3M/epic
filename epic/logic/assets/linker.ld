@@ -16,6 +16,10 @@ SECTIONS
         *(.text*)
         *(.rdata)
         *(.rdata*)
+
+        /* Just to be sure... */
         KEEP(*(.text$main_pic))
     }
+
+    __shellcode_size = SIZEOF(.text);
 }
