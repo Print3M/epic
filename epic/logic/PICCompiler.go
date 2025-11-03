@@ -104,41 +104,57 @@ func (pc *PICCompiler) compileProjectDirectory(targetDir string) {
 
 		cli.LogInfof(" ‣ %s -> %s", inputFile, outputFile)
 
-		// TODO: Check which parameters are actually necessary (some of them are linker params)
 		params := []string{
 			"-c", file.FullPath,
 			"-o", outputFile,
-			"-Os",
+
+			// EPIC features
+			"-I", pc.ProjectPath,
+			"-I", filepath.Join(pc.ProjectPath, "include"),
+			"-DPIC",
+			"-ffixed-rbx",
+
+			// PIC
 			"-fPIC",
 			"-nostdlib",
 			"-nostdinc",
-			"-nostartfiles",
-			"-ffreestanding",
 			"-fno-builtin",
+			"-nostartfiles",
 			"-nodefaultlibs",
-			"-ffunction-sections",
-			"-fdata-sections",
-			"-fno-ident",
+			"-ffreestanding",
 			"-fno-jump-tables",
-			"-falign-jumps=1",
-			"-mgeneral-regs-only",
-			"-fdiagnostics-color=always",
+			"-fno-stack-check",
+			"-fno-unwind-tables",
 			"-fcf-protection=none",
-			"-mno-sse",
-			"-mno-mmx",
-			"-mno-red-zone",
 			"-mno-stack-arg-probe",
 			"-fno-delete-null-pointer-checks",
 			"-fno-asynchronous-unwind-tables",
-			"-DPIC",
-			"-ffixed-rbx",
-			"-I", filepath.Join(pc.ProjectPath, "include"),
-			"-I", pc.ProjectPath,
+
+			// Compatiblity
+			"-mno-sse",
+			"-mno-mmx",
+			"-mno-red-zone",
+			"-mgeneral-regs-only",
+
+			// Size reduction
+			"-Os",
+			"-fno-ident",
+			"-fdata-sections",
+			"-ffunction-sections",
+			"-falign-jumps=1:0:0",
+			"-falign-loops=1:0:0",
+			"-falign-labels=1:0:0",
+			"-fno-stack-protector",
+			"-fmerge-all-constants",
+			"-falign-functions=1:0:0",
+
+			// Output
+			"-fdiagnostics-color=always",
 		}
 
 		switch filepath.Ext(file.FullPath) {
 		case ".cpp":
-			params = append(params, "-std=c++20", "-fno-rtti")
+			params = append(params, "-std=c++20", "-fno-rtti", "-fno-exceptions")
 		default:
 			params = append(params, "-std=c17")
 		}

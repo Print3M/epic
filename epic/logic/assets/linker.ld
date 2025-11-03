@@ -12,14 +12,16 @@ SECTIONS
     /* Subalign to minimize the gap between functions */
     .text : SUBALIGN(1) { 
         . = BASE;
+        *(.start_addr)
+
         *(.entry)
         *(.text*)
         *(.rdata)
         *(.rdata*)
+        
+        *(.end_addr)
 
         /* Just to be sure... */
         KEEP(*(.text$main_pic))
     }
-
-    __shellcode_size = SIZEOF(.text);
 }

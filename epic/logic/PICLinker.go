@@ -95,11 +95,15 @@ func (pl *PICLinker) linkExecutable() string {
 	}
 
 	params := []string{
-		"--gc-sections",
-		"-Map", linkerMapFile,
 		"-T", linkerScriptFile,
 		"-o", outputExecutable,
+		"-Map", linkerMapFile,
+		"--no-seh",
+		"--gc-sections",
 		"--image-base=0x00",
+		"--file-alignment=4",
+		"--section-alignment=4",
+		"--disable-runtime-pseudo-reloc",
 	}
 
 	if ctx.Debug {

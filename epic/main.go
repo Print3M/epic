@@ -6,9 +6,10 @@ import (
 )
 
 // TODO:
-// - Automatically obtain address of start and end of payload (in memory)
 // - Implement custom symbols for compilation
 // - Add author and project banner in project template
+// - Add README in project template
+// - README: Rewrite chapter about SAVE_GLOBAL() and GET_GLOBAL();
 
 func main() {
 	cmd.Run()

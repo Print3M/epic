@@ -9,7 +9,7 @@ EPIC is a robust single-executable toolkit for the complete PIC shellcode develo
 - Built-in modularity – you choose what you want to include!
 - Built-in global context support – no memory permission changes.
 - Built-in dead-code elimination – the smallest payload on the market.
-- Predictable PIC compilation – no implicit syscalls, no unexpected code.
+- Predictable PIC compilation – no implicit syscalls, no unexpected code, no dependencies.
 - Built-in minimal `libc` and `win32` written for PIC compatibility.
 - Built-in C and C++ (and mixing) support.
 - More...
@@ -149,9 +149,9 @@ SECOND_STAGE void main_pic() {
 }
 ```
 
-**IMPORTANT #1**: Never implement a function named `main()`! This will cause strange errors. See the FAQ section for a detailed explanation.
+> **IMPORTANT #1**: Never implement a function named `main()`! This will cause strange errors. See the FAQ section for a detailed explanation.
 
-**IMPORTANT #2**: Do not remove the `__main_pic()` and `WinMain` functions. They are essential for proper compilation.
+> **IMPORTANT #2**: Do not remove the `__main_pic()` and `WinMain` functions. They are essential for proper compilation.
 
 ### Global variables
 
@@ -183,29 +183,24 @@ However, global variables are useful and can significantly simplify code. Fortun
 ```c
 typedef struct {
     const char *name;
-} Context;
+} GlobalCtx;
 
 void child_func() {
-    Context* ctx = (Context *) GET_GLOBAL(); // Get global variable
+    GlobalCtx* ctx = (GlobalCtx *) GET_GLOBAL(); // Access global context
 
     exec(ctx->name);
 }
 
 SECOND_STAGE void main_pic() {
-    Context ctx;
-    SAVE_GLOBAL(ctx); // Make local variable global
-
+    GlobalCtx* ctx = (GlobalCtx *) GET_GLOBAL(); // Access global context
+    
     ctx.name = "calc.exe";
 
     child_func();
 }
 ```
 
-What sorcery is this?! It's a simple compiler trick. EPIC uses a CPU register to store a pointer to your local variable via `SAVE_GLOBAL(var)`. As long as your local variable remains on the stack, you can access it using the `GET_GLOBAL()` macro.
-
-> **IMPORTANT #1**: Your variable must remain on the stack, so the function that initializes your "global" variable cannot return. Therefore, always use `SAVE_GLOBAL(var)` directly in `main_pic()`. This makes it available to all other functions throughout your shellcode's execution.
-
-> **IMPORTANT #2**: You can only use `SAVE_GLOBAL(var)` once. This mechanism should exclusively maintain global context. However, the size and content of the global context are entirely up to you.
+What sorcery is this?! It's a simple compiler trick. EPIC uses a CPU register to store a pointer to your local variable via `SAVE_GLOBAL(ctx)` in `__main_pic()`. You cannot use not touch the default code. As long as your local variable remains on the stack, you can access it using the `GET_GLOBAL()` macro.
 
 ### Modularity
 
@@ -379,10 +374,11 @@ This map shows which sections (when using `-ffunction-sections`, each section re
 Yes. Use the following command:
 
 ```bash
-objdump -D -b binary -m i386:x86-64 -M intel payload.bin
+objdump -D -b binary -m i386:x86-64 -M intel payload.bin -z
 ```
 
 ## Credits
 
 - [Stardust by 5pider](https://github.com/Cracked5pider/Stardust) for inspiration.
-- - [c-to-shellcode.py](https://github.com/Print3M/c-to-shellcode) – EPIC is basically a follow-up to my previous PoC.
+- [PIClin by JJK96](https://github.com/JJK96/PIClin) for inspiration.
+- [c-to-shellcode.py](https://github.com/Print3M/c-to-shellcode) – EPIC is basically a follow-up to my previous PoC.

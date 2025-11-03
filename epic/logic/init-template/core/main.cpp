@@ -3,53 +3,65 @@
 #include <libc/stdbool.h>
 #include <libc/stdint.h>
 #include <modules/hello/hello.h>
+#include <libc/stdlib.h>
 
 typedef struct {
 	const char *message;
-	void *start;
-	void *end;
+	void *pic_start;
+	void *pic_end;
 } GlobalCtx;
 
-void child_func() {
+void print_hello() {
 	GlobalCtx* ctx = (GlobalCtx *) GET_GLOBAL();
 	
 	hello::message(ctx->message);
 }
 
-// EPIC: Entry point
 SECOND_STAGE void main_pic() {
-	GlobalCtx ctx;
-	SAVE_GLOBAL(ctx);
-	
-	ctx.message = "Hello EPIC!";
-	
-	child_func();
+	GlobalCtx* ctx = (GlobalCtx *) GET_GLOBAL();
+
+	ctx->message = "Hello EPIC!";
+
+	print_hello();
 }
 
-// TODO: Add banner "Don't touch"
 
-// EPIC: Do not remove!
-extern "C" const size_t __shellcode_size;
-extern "C" const void * __shellcode_start;
-extern "C" void * __shellcode_end;
+//
+// * ======================================================================== *
+// |																		  |
+// |		    DO NOT TOUCH! The code below is required by EPIC.		      |
+// |																		  |
+// * ======================================================================== *
+//
+const char __attribute__((section(".start_addr"))) __pic_start[0] = {};
+const char __attribute__((section(".end_addr"))) __pic_end[0] = {};
+
+// TODO: Test with C
 
 FIRST_STAGE void __main_pic() {
-	// TODO: Get start address of your payload
 	__asm__ volatile(
 		"push %rsi\n"
 		"mov %rsp, %rsi\n"
 		"and $0x0FFFFFFFFFFFFFFF0, %rsp\n"
 		"sub $0x20, %rsp\n"
+	);
 
-		"call main_pic\n"
+	// Initializing CPU-based global context
+	GlobalCtx ctx;
+	ctx.pic_start = (void*) &__pic_start;
+	ctx.pic_end = (void*) &__pic_end;
+	SAVE_GLOBAL(ctx);
 
+	// Starting main execution...
+	main_pic();
+
+	__asm__ volatile(
 		"mov %rsi, %rsp\n"
 		"pop %rsi\n"
 		"ret\n"
 	);
 }
 
-// EPIC: Do not remove!
 #ifdef MONOLITH
 void WINAPI WinMain() { __main_pic(); }
 #endif

@@ -1,6 +1,19 @@
+// EPIC (Extensible Position Independent Code)
+//
+// Source: github.com/Print3M/epic
+// Author: Print3M
+
 #pragma once
 
 // TODO: Add documentation here
+
+//
+// * ======================================================================== *
+// |																		  |
+// |		    DO NOT TOUCH! The code below is required by EPIC.		      |
+// |																		  |
+// * ======================================================================== *
+//
 
 #define KEEP	  __attribute__((used))
 #define EXISTS(x) ((x) != NULL)

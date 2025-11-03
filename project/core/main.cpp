@@ -3,64 +3,56 @@
 #include <libc/stdbool.h>
 #include <libc/stdint.h>
 #include <modules/hello/hello.h>
-
-#ifdef MONOLITH
-#include <stdio.h>
-#endif
+#include <libc/stdlib.h>
 
 typedef struct {
 	const char *message;
-	void *start;
-	void *end;
+	void *pic_start;
+	void *pic_end;
 } GlobalCtx;
 
-void child_func() {
+void print_hello() {
 	GlobalCtx* ctx = (GlobalCtx *) GET_GLOBAL();
 	
 	hello::message(ctx->message);
 }
 
-// EPIC: Entry point
 SECOND_STAGE void main_pic() {
+	GlobalCtx* ctx = (GlobalCtx *) GET_GLOBAL();
 
-#ifdef MONOLITH
-	printf("Shellcode size: %d\n", __shellcode_size);
-	printf("Shellcode start: %p\n", __shellcode_start);
-	printf("Shellcode end: %p\n", __shellcode_end);
-#endif
-	
-	GlobalCtx ctx;
-	SAVE_GLOBAL(ctx);
-	
-	ctx.message = "Hello EPIC!";
-	
-	child_func();
+	ctx->message = "Hello EPIC!";
+
+	print_hello();
 }
 
 // TODO: Add banner "Don't touch"
-
-// EPIC: Do not remove!
-
-// TODO: Add start and end dummmy constant. Taking addresses of them gives the start and end of the shellcode!
-// This is probably the simplest way! 
+// TODO: Test with Monolith
+// TODO: Test with C
+const char __attribute__((section(".start_addr"))) __pic_start[0] = {};
+const char __attribute__((section(".end_addr"))) __pic_end[0] = {};
 
 FIRST_STAGE void __main_pic() {
-	// TODO: Get start address of your payload
 	__asm__ volatile(
 		"push %rsi\n"
 		"mov %rsp, %rsi\n"
 		"and $0x0FFFFFFFFFFFFFFF0, %rsp\n"
 		"sub $0x20, %rsp\n"
+	);
 
-		"call main_pic\n"
+	GlobalCtx ctx;
+	ctx.pic_start = (void*) &__pic_start;
+	ctx.pic_end = (void*) &__pic_end;
+	SAVE_GLOBAL(ctx);
 
+	main_pic();
+
+	__asm__ volatile(
 		"mov %rsi, %rsp\n"
 		"pop %rsi\n"
 		"ret\n"
 	);
 }
 
-// EPIC: Do not remove!
 #ifdef MONOLITH
 void WINAPI WinMain() { __main_pic(); }
 #endif
