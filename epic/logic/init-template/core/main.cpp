@@ -7,8 +7,8 @@
 
 typedef struct {
 	const char *message;
-	void *pic_start;
-	void *pic_end;
+	void *pic_start;	// 1st byte of the shellcode
+	void *pic_end;      // 1st byte behind the shellcode
 } GlobalCtx;
 
 void print_hello() {
@@ -48,9 +48,11 @@ FIRST_STAGE void __main_pic() {
 
 	// Initializing CPU-based global context
 	GlobalCtx ctx;
+	SAVE_GLOBAL(ctx);
+
+	// Getting context values
 	ctx.pic_start = (void*) &__pic_start;
 	ctx.pic_end = (void*) &__pic_end;
-	SAVE_GLOBAL(ctx);
 
 	// Starting main execution...
 	main_pic();

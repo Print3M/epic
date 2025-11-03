@@ -70,7 +70,7 @@ Compiles all source files from the project at `<path>` and saves object files to
 Flags:
 
 - `-o / --output <path>` [required] – Output path for compiled object files.
-- `--gcc <string>` – Specify additional flags for GCC compilation (e.g. `--gcc '-DDEBUG'`)
+- `--gcc <string>` – Specify additional flags for GCC compilation (e.g. `--gcc '-DDEBUG -DMAX_ITEMS=12'`)
 - `--strict` – Enable all compiler checks (`-Wall`, `-Wextra`, `-pedantic`).
 
 ### `pic-link <path>`

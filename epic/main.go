@@ -6,7 +6,6 @@ import (
 )
 
 // TODO:
-// - Add author and project banner in project template
 // - Add README in project template
 
 func main() {

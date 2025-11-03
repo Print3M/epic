@@ -9,7 +9,6 @@
  * Feel free to copy, modify, redistribute it!
  *
 */
-
 #pragma once
 #include <libc/stddef.h>
 #include <libc/stdint.h>
