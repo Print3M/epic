@@ -1,5 +1,8 @@
 # EPIC
 
+> [!WARNING]
+> **Beta Testing Stage** – This repository is currently in beta. Expect bugs, incomplete features, and breaking changes. Use at your own risk.
+
 EPIC (*Extensible Position Independent Code*) – PIC shellcode development and building framework designed for developer experience, predictability, and modularity. *Write code, EPIC will take care of the rest!*
 
 ![EPIC flow chart](_img/img-1.jpg)

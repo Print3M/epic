@@ -5,8 +5,6 @@
 
 #pragma once
 
-// TODO: Add documentation here
-
 //
 // * ======================================================================== *
 // |																		  |
@@ -15,8 +13,13 @@
 // * ======================================================================== *
 //
 
+// Force compiler and linker not to eliminate the function
 #define KEEP	  __attribute__((used))
+
+// Check if is linked at runtime
 #define EXISTS(x) ((x) != NULL)
+
+// Functions exported from modules should be marked as weak references
 #define MODULE	  __attribute__((weak))
 
 #define __FIRST_STAGE __attribute__((section(".entry"))) __attribute__((naked))
