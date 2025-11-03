@@ -7,6 +7,7 @@ import (
 
 // TODO:
 // - Add README in project template
+// - Add table of contents in README
 
 func main() {
 	cmd.Run()

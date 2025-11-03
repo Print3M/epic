@@ -1,0 +1,93 @@
+name: Build EPIC
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types: [ closed ]
+
+permissions:
+  contents: write
+  pull-requests: write
+  repository-projects: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23.1'
+
+    - name: Build Windows binary
+      run: |
+        GOOS=windows GOARCH=amd64 go build -o EPIC.exe -ldflags "-w -s" -trimpath main.go
+
+    - name: Build Linux binary
+      run: |
+        GOOS=linux GOARCH=amd64 go build -o EPIC-linux-amd64 -ldflags "-w -s" -trimpath main.go
+
+    - name: Build macOS binary 
+      run: |
+        GOOS=darwin GOARCH=arm64 go build -o EPIC-darwin-arm64 -ldflags "-w -s" -trimpath main.go
+
+    - name: List built binaries
+      run: ls -la
+
+    - name: Delete existing tag and release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release delete 1.1.1 --cleanup-tag --yes || echo "No release or tag found for 1.1.1"
+    
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: 0.1.0
+        release_name: EPIC 0.1.0
+        body: |
+          - Beta testing release!
+        draft: false          
+        prerelease: false
+
+    - name: Upload Windows asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: EPIC.exe
+        asset_name: EPIC.exe
+        asset_content_type: application/octet-stream
+
+    - name: Upload Linux asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: EPIC-linux-amd64
+        asset_name: EPIC-linux-amd64
+        asset_content_type: application/octet-stream
+
+    - name: Upload macOS asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: EPIC-darwin-arm64
+        asset_name: EPIC-darwin-arm64
+        asset_content_type: application/octet-stream
