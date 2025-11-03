@@ -30,15 +30,15 @@ jobs:
 
     - name: Build Windows binary
       run: |
-        GOOS=windows GOARCH=amd64 go build -o EPIC.exe -ldflags "-w -s" -trimpath epic/main.go
+        GOOS=windows GOARCH=amd64 go build -o EPIC.exe -ldflags "-w -s" -trimpath main.go
 
     - name: Build Linux binary
       run: |
-        GOOS=linux GOARCH=amd64 go build -o EPIC-linux-amd64 -ldflags "-w -s" -trimpath epic/main.go
+        GOOS=linux GOARCH=amd64 go build -o EPIC-linux-amd64 -ldflags "-w -s" -trimpath main.go
 
     - name: Build macOS binary 
       run: |
-        GOOS=darwin GOARCH=arm64 go build -o EPIC-darwin-arm64 -ldflags "-w -s" -trimpath epic/main.go
+        GOOS=darwin GOARCH=arm64 go build -o EPIC-darwin-arm64 -ldflags "-w -s" -trimpath main.go
 
     - name: List built binaries
       run: ls -la
