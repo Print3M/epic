@@ -12,6 +12,7 @@ import (
 type PICCompiler struct {
 	ProjectPath string
 	OutputPath  string
+	GccFlags    []string
 	Strict      bool
 }
 
@@ -157,6 +158,10 @@ func (pc *PICCompiler) compileProjectDirectory(targetDir string) {
 			params = append(params, "-std=c++20", "-fno-rtti", "-fno-exceptions")
 		default:
 			params = append(params, "-std=c17")
+		}
+
+		if len(pc.GccFlags) > 0 {
+			params = append(params, pc.GccFlags...)
 		}
 
 		if pc.Strict {

@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var __linkModules string
+var __plModules string
 
 var pl logic.PICLinker
 
@@ -24,8 +24,8 @@ var linkCmd = &cobra.Command{
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		pl.ObjectsPath = args[0]
 
-		if __linkModules != "" {
-			pl.Modules = utils.StringToSlice(__linkModules, ",")
+		if __plModules != "" {
+			pl.Modules = utils.StringToSlice(__plModules, ",")
 		}
 
 		if err := pl.ValidateObjectsPath(); err != nil {
@@ -70,7 +70,7 @@ var linkCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(linkCmd)
 
-	linkCmd.Flags().StringVarP(&__linkModules, "modules", "m", "", "comma-separated list of modules")
+	linkCmd.Flags().StringVarP(&__plModules, "modules", "m", "", "comma-separated list of modules")
 	linkCmd.Flags().StringVarP(&pl.OutputPath, "output", "o", "", "output path (required)")
 
 	// Mark required flags

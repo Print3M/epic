@@ -4,13 +4,17 @@ import (
 	"epic/cli"
 	"epic/ctx"
 	"epic/logic"
+	"epic/utils"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
 var pc logic.PICCompiler
+
+var __pcGccFlags string
 
 var compileCmd = &cobra.Command{
 	Use:   "pic-compile <path>",
@@ -19,6 +23,10 @@ var compileCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		pc.ProjectPath = args[0]
+
+		if __pcGccFlags != "" {
+			pc.GccFlags = utils.StringToSlice(__pcGccFlags, " ")
+		}
 
 		if err := pc.ValidateProjectPath(); err != nil {
 			return nil
@@ -38,6 +46,7 @@ var compileCmd = &cobra.Command{
 		if ctx.Debug {
 			cli.LogDbgf("Project path: %s", pc.ProjectPath)
 			cli.LogDbgf("Output path: %s", pc.OutputPath)
+			cli.LogDbgf("Additional GCC flags: %s", strings.Join(pc.GccFlags, " "))
 
 			if ctx.MingwGccPath != "" {
 				cli.LogDbgf("MinGW-w64 GCC: %s", ctx.MingwGccPath)
@@ -54,6 +63,7 @@ func init() {
 	rootCmd.AddCommand(compileCmd)
 
 	compileCmd.Flags().StringVarP(&pc.OutputPath, "output", "o", "", "output path (required)")
+	compileCmd.Flags().StringVar(&__pcGccFlags, "gcc", "", "specify additional GCC flags")
 	compileCmd.Flags().BoolVar(&pc.Strict, "strict", false, "enable all compiler checks (-Wall, -Wextra, -pedantic)")
 
 	// Mark required flags

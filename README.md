@@ -8,7 +8,7 @@ EPIC is a robust single-executable toolkit for the complete PIC shellcode develo
 
 - Built-in modularity – you choose what you want to include!
 - Built-in global context support – no memory permission changes.
-- Built-in dead-code elimination – the smallest payload on the market.
+- Built-in dead-code elimination – smallest payload on the market.
 - Predictable PIC compilation – no implicit syscalls, no unexpected code, no dependencies.
 - Built-in minimal `libc` and `win32` written for PIC compatibility.
 - Built-in C and C++ (and mixing) support.
@@ -70,6 +70,7 @@ Compiles all source files from the project at `<path>` and saves object files to
 Flags:
 
 - `-o / --output <path>` [required] – Output path for compiled object files.
+- `--gcc <string>` – Specify additional flags for GCC compilation (e.g. `--gcc '-DDEBUG'`)
 - `--strict` – Enable all compiler checks (`-Wall`, `-Wextra`, `-pedantic`).
 
 ### `pic-link <path>`
@@ -200,7 +201,9 @@ SECOND_STAGE void main_pic() {
 }
 ```
 
-What sorcery is this?! It's a simple compiler trick. EPIC uses a CPU register to store a pointer to your local variable via `SAVE_GLOBAL(ctx)` in `__main_pic()`. You cannot use not touch the default code. As long as your local variable remains on the stack, you can access it using the `GET_GLOBAL()` macro.
+What sorcery is this?! It's a simple compiler trick. EPIC uses a fixed CPU register (`RBX`) to store a pointer to a local variable via `SAVE_GLOBAL(ctx)` in `__main_pic()`. Because it's called by `__main_pic()` the local variable becomes effectively global context for the entire shellcode. You can access it using the `GET_GLOBAL()` macro from anywhere in your shellcode. Adjust the `GlobalContext` structure however you like.
+
+> **NOTE**: If your shellcode uses code that is not compiled by EPIC, there might be a problem. In the calling convention used on Windows, the RBX register is preserved, i.e., it is not changed by the called functions. But if you use some other code that overwrites and does not restore the RBX register state, you will lose the pointer to your global structure. Also writing inline assembly you should be careful not to overwrite the RBX register.
 
 ### Modularity
 
