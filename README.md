@@ -22,6 +22,7 @@ EPIC is a robust single-executable toolkit for the complete PIC shellcode develo
 - [Quick Start](#quick-start)
 - [EPIC Commands](#epic-commands)
 - [EPIC Coding Guide](#epic-coding-guide)
+- [Troubleshooting](#troubleshooting)
 - [FAQ](#faq)
 
 ## Quick Start
@@ -155,10 +156,9 @@ modules/
 
 Your shellcode entry point is in `core/main.cpp`. The `main_pic()` function is where you begin writing your code. The `core/` directory has special significance because it is always linked to every payload, unlike `modules/`, which you have control over.
 
-```c
-// EPIC: Entry point
-MAIN_PIC void main_pic() {
-    // Your code here!
+```c++
+extern "C" void main_pic() {
+    // Start shellcoding here...
 }
 ```
 
@@ -311,17 +311,17 @@ You can use (if you had any doubts):
 
 ---
 
-## FAQ
+## Troubleshooting
 
-### Troubleshooting
-
-1. Rebuild from scratch – Clean your object files directory and run `pic-compile` + `pic-link` again
+1. Rebuild project from scratch – Clean your object files directory and run `pic-compile` + `pic-link` again.
 2. Test with `monolith` – Compile a monolith version with debugging code to verify basic functionality.
 3. Review your code – Ensure you're following all EPIC Coding Guide rules.
 4. Inspect the linker map – Check the linker map in `assets/` after running `pic-link` to verify which functions are included in the final payload.
 5. Enable debug output – Run with the `--debug` flag to see detailed compilation and linking information.
 
 If nothing helps, you are cooked.
+
+## FAQ
 
 ### EPIC Limitations
 
