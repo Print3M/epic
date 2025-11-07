@@ -8,9 +8,7 @@ import (
 // TODO:
 // - Add README in project template
 //
-//
-// - Add pic-link --all-modules / -am flag (omit -m flag in this case)
-//   Update README
+// - Something doesn't work in a new template
 
 func main() {
 	cmd.Run()

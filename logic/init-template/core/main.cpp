@@ -12,7 +12,7 @@ void print_hello() {
     hello::message(ctx->message);
 }
 
-void main_pic() {
+extern "C" void main_pic() {
     auto ctx = GET_CONTEXT();
 
     ctx->message = "Hello EPIC!";

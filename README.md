@@ -95,7 +95,7 @@ Flags:
 
 - `-o / --output <path>` [required] – Output path for the payload.
 - `-m / --modules <modules>` – Comma-separated list of modules to link (named after their folders in `modules/`).
-- `-am / --all-modules` – Link all modules (ignore `-m` flag).
+- `-a / --all-modules` – Link all modules (ignore `-m` flag).
 
 ### `loader <path>`
 

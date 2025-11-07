@@ -75,7 +75,7 @@ var linkCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(linkCmd)
 
-	linkCmd.Flags().BoolVarP(&pl.AllModules, "all-modules", "am", false, "link all modules (ignore -m flag)")
+	linkCmd.Flags().BoolVarP(&pl.AllModules, "all-modules", "a", false, "link all modules (ignore -m flag)")
 	linkCmd.Flags().StringVarP(&__plModules, "modules", "m", "", "comma-separated list of modules")
 	linkCmd.Flags().StringVarP(&pl.OutputPath, "output", "o", "", "output path (required)")
 
