@@ -50,7 +50,12 @@ var linkCmd = &cobra.Command{
 		if ctx.Debug {
 			cli.LogDbgf("Objects path: %s", pl.ObjectsPath)
 			cli.LogDbgf("Output path: %s", pl.OutputPath)
-			cli.LogDbgf("Modules: %s", strings.Join(pl.Modules, ","))
+
+			if pl.AllModules {
+				cli.LogDbg("All modules included")
+			} else {
+				cli.LogDbgf("Modules: %s", strings.Join(pl.Modules, ","))
+			}
 
 			if ctx.MingwLdPath != "" {
 				cli.LogDbgf("MinGW-w64 ld: %s", ctx.MingwLdPath)
@@ -70,6 +75,7 @@ var linkCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(linkCmd)
 
+	linkCmd.Flags().BoolVarP(&pl.AllModules, "all-modules", "am", false, "link all modules (ignore -m flag)")
 	linkCmd.Flags().StringVarP(&__plModules, "modules", "m", "", "comma-separated list of modules")
 	linkCmd.Flags().StringVarP(&pl.OutputPath, "output", "o", "", "output path (required)")
 

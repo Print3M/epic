@@ -7,7 +7,10 @@ import (
 
 // TODO:
 // - Add README in project template
-// - Add table of contents in README
+//
+//
+// - Add pic-link --all-modules / -am flag (omit -m flag in this case)
+//   Update README
 
 func main() {
 	cmd.Run()

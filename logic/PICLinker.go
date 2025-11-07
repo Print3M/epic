@@ -18,6 +18,7 @@ type PICLinker struct {
 	ObjectsPath string
 	OutputPath  string
 	Modules     []string
+	AllModules  bool
 }
 
 func (pl *PICLinker) ValidateObjectsPath() error {
@@ -133,16 +134,32 @@ func (pl *PICLinker) getObjectFiles() []string {
 	}
 
 	// Collecting modules
-	for _, module := range pl.Modules {
-		path := filepath.Join(pl.ObjectsPath, "modules", module)
+	objectFiles = append(objectFiles, pl.getModuleObjectFiles()...)
+
+	if len(objectFiles) == 0 {
+		cli.LogErrf("No object files (*.o) found in %s", pl.ObjectsPath)
+	}
+
+	return objectFiles
+}
+
+func (pl *PICLinker) getModuleObjectFiles() []string {
+	var objectFiles []string
+
+	if pl.AllModules {
+		path := filepath.Join(pl.ObjectsPath, "modules")
 
 		for _, f := range utils.GetFilesByExtensions(path, []string{".o"}) {
 			objectFiles = append(objectFiles, f.FullPath)
 		}
-	}
+	} else {
+		for _, module := range pl.Modules {
+			path := filepath.Join(pl.ObjectsPath, "modules", module)
 
-	if len(objectFiles) == 0 {
-		cli.LogErrf("No object files (*.o) found in %s", pl.ObjectsPath)
+			for _, f := range utils.GetFilesByExtensions(path, []string{".o"}) {
+				objectFiles = append(objectFiles, f.FullPath)
+			}
+		}
 	}
 
 	return objectFiles

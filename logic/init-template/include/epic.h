@@ -22,19 +22,7 @@
 // Functions exported from modules should be marked as weak references
 #define MODULE	  __attribute__((weak))
 
-#define __FIRST_STAGE __attribute__((section(".entry"))) __attribute__((naked))
-
-#ifdef __cplusplus
-
-#define FIRST_STAGE extern "C" __FIRST_STAGE 
-#define SECOND_STAGE extern "C" KEEP
-
-#else
-
-#define FIRST_STAGE __FIRST_STAGE
-#define SECOND_STAGE KEEP
-
-#endif
+#define EPIC_START __attribute__((section(".entry"))) __attribute__((naked))
 
 // CPU-based global variable mechanism. Memory address is stored in a fixed CPU register.
 // Usage of this CPU register must be disabled at the compilation level so that our

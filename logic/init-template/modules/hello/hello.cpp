@@ -10,31 +10,32 @@
 
 #define SW_SHOWNORMAL 0x1
 
-typedef UINT(WINAPI *WinExecPtr)(LPCSTR lpCmdLine, UINT uCmdShow);
-typedef HMODULE(WINAPI *LoadLibraryAPtr)(LPCSTR lpLibFileName);
-typedef INT(WINAPI *MessageBoxAPtr)(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType);
+typedef UINT(WINAPI* WinExecPtr)(LPCSTR lpCmdLine, UINT uCmdShow);
+typedef HMODULE(WINAPI* LoadLibraryAPtr)(LPCSTR lpLibFileName);
+typedef INT(WINAPI* MessageBoxAPtr)(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType);
 
 namespace hello {
 
 void calc() {
-	auto dll	 = GetDllFromMemory(L"C:\\WINDOWS\\System32\\KERNEL32.DLL");
-	auto WinExec = (WinExecPtr) GetProcAddr(dll, "WinExec");
+    auto dll     = GetDllFromMemory(L"KERNEL32.DLL");
+    auto WinExec = (WinExecPtr)GetProcAddr(dll, "WinExec");
 
-	WinExec("calc.exe", SW_SHOWNORMAL);
+    WinExec("calc.exe", SW_SHOWNORMAL);
 }
 
 void message(const char* msg) {
-	auto dll		  = GetDllFromMemory(L"C:\\WINDOWS\\System32\\KERNEL32.DLL");
-	auto LoadLibraryA = (LoadLibraryAPtr) GetProcAddr(dll, "LoadLibraryA");
+    auto dll          = GetDllFromMemory(L"KERNEL32.DLL");
+    auto LoadLibraryA = (LoadLibraryAPtr)GetProcAddr(dll, "LoadLibraryA");
 
-	auto user32 = LoadLibraryA("user32.dll");
-	if (user32) {
-		auto MessageBoxA = (MessageBoxAPtr) GetProcAddr(user32, "MessageBoxA");
-		
-		if (MessageBoxA) {
-			MessageBoxA(NULL, msg, "EPIC", 0);
-		}
-	}
+
+    auto user32 = LoadLibraryA("user32.dll");
+    if (user32) {
+        auto MessageBoxA = (MessageBoxAPtr)GetProcAddr(user32, "MessageBoxA");
+
+        if (MessageBoxA) {
+            MessageBoxA(NULL, msg, "EPIC", 0);
+        }
+    }
 }
 
-}
+}  // namespace hello

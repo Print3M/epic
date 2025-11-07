@@ -17,6 +17,13 @@ EPIC is a robust single-executable toolkit for the complete PIC shellcode develo
 - Built-in C and C++ (and mixing) support.
 - More...
 
+**Table of Contents**
+
+- [Quick Start](#quick-start)
+- [EPIC Commands](#epic-commands)
+- [EPIC Coding Guide](#epic-coding-guide)
+- [FAQ](#faq)
+
 ## Quick Start
 
 Download compiled EPIC binary from [release page](https://github.com/Print3M/epic/releases).
@@ -88,6 +95,7 @@ Flags:
 
 - `-o / --output <path>` [required] – Output path for the payload.
 - `-m / --modules <modules>` – Comma-separated list of modules to link (named after their folders in `modules/`).
+- `-am / --all-modules` – Link all modules (ignore `-m` flag).
 
 ### `loader <path>`
 
@@ -134,6 +142,7 @@ Project structure:
 
 ```text
 core/main.cpp    <-- Entry point to your code
+core/context.h   <-- Definition of global context
 include/
     libc/*       <-- libc headers (PIC-compatbile)
     win32/*      <-- WinAPI headers (PIC-compatible)
@@ -148,7 +157,7 @@ Your shellcode entry point is in `core/main.cpp`. The `main_pic()` function is w
 
 ```c
 // EPIC: Entry point
-SECOND_STAGE void main_pic() {
+MAIN_PIC void main_pic() {
     // Your code here!
 }
 ```
@@ -185,18 +194,21 @@ void calc() {
 However, global variables are useful and can significantly simplify code. Fortunately, EPIC has a solution!
 
 ```c
+// context.h
 typedef struct {
     const char *name;
 } GlobalCtx;
 
+// ------------------------------------------
+
 void child_func() {
-    GlobalCtx* ctx = (GlobalCtx *) GET_GLOBAL(); // Access global context
+    GlobalCtx* ctx = GET_CONTEXT(); // Access global context
 
     exec(ctx->name);
 }
 
-SECOND_STAGE void main_pic() {
-    GlobalCtx* ctx = (GlobalCtx *) GET_GLOBAL(); // Access global context
+void main_pic() {
+    GlobalCtx* ctx = GET_CONTEXT(); // Access global context
     
     ctx.name = "calc.exe";
 
@@ -204,7 +216,7 @@ SECOND_STAGE void main_pic() {
 }
 ```
 
-What sorcery is this?! It's a simple compiler trick. EPIC uses a fixed CPU register (`RBX`) to store a pointer to a local variable via `SAVE_GLOBAL(ctx)` in `__main_pic()`. Because it's called by `__main_pic()` the local variable becomes effectively global context for the entire shellcode. You can access it using the `GET_GLOBAL()` macro from anywhere in your shellcode. Adjust the `GlobalContext` structure however you like.
+What sorcery is this?! It's a simple compiler trick. EPIC uses a fixed CPU register (`RBX`) to store a pointer to a local variable via `SAVE_GLOBAL(ctx)` macro in `__main_pic()`. Because it's called by `__main_pic()` the local variable becomes effectively global context for the entire shellcode. You can access it using the `GET_CONTEXT()` macro from anywhere in your shellcode. Adjust the `GlobalCtx` structure defined in `context.h` file however you like.
 
 > **NOTE**: If your shellcode uses code that is not compiled by EPIC, there might be a problem. In the calling convention used on Windows, the RBX register is preserved, i.e., it is not changed by the called functions. But if you use some other code that overwrites and does not restore the RBX register state, you will lose the pointer to your global structure. Also writing inline assembly you should be careful not to overwrite the RBX register.
 
