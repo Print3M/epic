@@ -17,16 +17,15 @@ typedef INT(WINAPI* MessageBoxAPtr)(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, 
 namespace hello {
 
 void calc() {
-    auto dll     = GetDllFromMemory(L"KERNEL32.DLL");
-    auto WinExec = (WinExecPtr)GetProcAddr(dll, "WinExec");
+    auto kernel32 = GetDllFromMemory(L"KERNEL32.DLL");
+    auto WinExec  = (WinExecPtr)GetProcAddr(kernel32, "WinExec");
 
     WinExec("calc.exe", SW_SHOWNORMAL);
 }
 
 void message(const char* msg) {
-    auto dll          = GetDllFromMemory(L"KERNEL32.DLL");
-    auto LoadLibraryA = (LoadLibraryAPtr)GetProcAddr(dll, "LoadLibraryA");
-
+    auto kernel32     = GetDllFromMemory(L"KERNEL32.DLL");
+    auto LoadLibraryA = (LoadLibraryAPtr)GetProcAddr(kernel32, "LoadLibraryA");
 
     auto user32 = LoadLibraryA("user32.dll");
     if (user32) {

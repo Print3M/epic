@@ -38,11 +38,16 @@ HMODULE GetDllFromMemory(const wchar_t* name) {
 
 #ifdef MONOLITH
 		printf("[GetDllFromMemory] ------------\n");
-        printf("[GetDllFromMemory]: %ls\n", dll->BaseDllName.Buffer);
-        printf("[GetDllFromMemory]: %ls\n", dll->FullDllName.Buffer);
+        printf("[GetDllFromMemory] BaseDllName: %ls\n", dll->BaseDllName.Buffer);
+        printf("[GetDllFromMemory] FullDllName: %ls\n", dll->FullDllName.Buffer);
 #endif
 
         if (wcscmp(dll->BaseDllName.Buffer, name) == 0) {
+
+#ifdef MONOLITH
+            printf("[GetDllFromMemory] Found: %ls\n", dll->BaseDllName.Buffer);
+#endif
+
             return (HMODULE)dll->DllBase;
         }
 
@@ -74,7 +79,6 @@ void* GetProcAddr(HMODULE module, const char* funcName) {
         char* tmp = (char*)((PBYTE)dll + name_rva[i]);
 
         if (strcmp(tmp, funcName) == 0) {
-            i = -1;
 			break;
         }
         i++;

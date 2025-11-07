@@ -13,6 +13,7 @@ void print_hello() {
 }
 
 extern "C" void main_pic() {
+    // Start here...
     auto ctx = GET_CONTEXT();
 
     ctx->message = "Hello EPIC!";
