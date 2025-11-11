@@ -47,7 +47,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh release delete 0.1.1 --cleanup-tag --yes || echo "No release or tag found for 0.1.1"
+        gh release delete 1.0.0 --cleanup-tag --yes || echo "No release or tag found for 1.0.0"
     
     - name: Create Release
       id: create_release
@@ -55,12 +55,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: 0.1.1
-        release_name: EPIC 0.1.1
+        tag_name: 1.0.0
+        release_name: EPIC 1.0.0
         body: |
-          - Initial template improved
-          - `pic-link -a / --all-modules` flag implemented
-          - General stability improved
+          - Official release!
         draft: false          
         prerelease: false
 
