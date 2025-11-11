@@ -17,8 +17,11 @@
 
 extern void main_pic();
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 const char __attribute__((section(".start_addr"))) __pic_start[0] = {};
 const char __attribute__((section(".end_addr"))) __pic_end[0]     = {};
+#pragma GCC diagnostic pop
 
 // This is the entry function of the payload
 EPIC_START void __main_pic() {
@@ -29,7 +32,7 @@ EPIC_START void __main_pic() {
 
     // Initializing CPU-based global context
     GlobalCtx ctx;
-    SAVE_GLOBAL(ctx);
+    SAVE_GLOBAL(&ctx);
 
     // Getting context values
     ctx.pic_start = (void*)&__pic_start;
