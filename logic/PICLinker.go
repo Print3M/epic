@@ -72,11 +72,16 @@ func (pl *PICLinker) linkExecutable() string {
 	/*
 		Using ld linker link all object files
 	*/
-	if len(pl.Modules) == 0 {
-		cli.LogInfo("Linking PIC core (no modules)")
 
+	if pl.AllModules {
+		cli.LogInfo("Linking PIC core + all modules")
 	} else {
-		cli.LogInfof("Linking PIC core + modules (%s)", strings.Join(pl.Modules, ","))
+		if len(pl.Modules) == 0 {
+			cli.LogInfo("Linking PIC core (no modules)")
+
+		} else {
+			cli.LogInfof("Linking PIC core + modules (%s)", strings.Join(pl.Modules, ","))
+		}
 	}
 
 	assetsDir := filepath.Join(pl.OutputPath, "assets")

@@ -47,7 +47,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh release delete 1.0.0 --cleanup-tag --yes || echo "No release or tag found for 1.0.0"
+        gh release delete 1.0.1 --cleanup-tag --yes || echo "No release or tag found for 1.0.1"
     
     - name: Create Release
       id: create_release
@@ -55,10 +55,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: 1.0.0
-        release_name: EPIC 1.0.0
+        tag_name: 1.0.1
+        release_name: EPIC 1.0.1
         body: |
-          - Official release!
+          - Wrong `pic-link` CLI output information fixed.
         draft: false          
         prerelease: false
 
