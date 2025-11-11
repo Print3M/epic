@@ -4,6 +4,7 @@ import (
 	"epic/cli"
 	"epic/ctx"
 	"epic/logic"
+	"epic/utils"
 	"fmt"
 	"os"
 
@@ -12,6 +13,8 @@ import (
 
 var mc logic.MonolithCompiler
 
+var __mcGccFlags string
+
 var monolithCmd = &cobra.Command{
 	Use:   "monolith <path>",
 	Short: "Build monolithic executable from project",
@@ -19,6 +22,10 @@ var monolithCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		mc.ProjectPath = args[0]
+
+		if __mcGccFlags != "" {
+			mc.GccFlags = utils.StringToSlice(__mcGccFlags, " ")
+		}
 
 		if err := mc.ValidateProjectPath(); err != nil {
 			return err
@@ -54,6 +61,7 @@ func init() {
 	rootCmd.AddCommand(monolithCmd)
 
 	monolithCmd.Flags().StringVarP(&mc.OutputPath, "output", "o", "", "output path for generated executable (required)")
+	monolithCmd.Flags().StringVar(&__mcGccFlags, "gcc", "", "specify additional GCC flags")
 
 	// Mark required flags
 	if err := monolithCmd.MarkFlagRequired("output"); err != nil {

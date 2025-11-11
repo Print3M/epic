@@ -10,7 +10,5 @@
 #include <epic.h>
 #include <win32/windows.h>
 
-#define MAX_DLL_NAME_SIZE 256
-
 HMODULE GetDllFromMemory(const wchar_t* name);
 void* GetProcAddr(HMODULE dll, const char* funcName);

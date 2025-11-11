@@ -7,8 +7,12 @@ import (
 
 // TODO:
 // - Add README in project template
-//
-// - Something doesn't work in a new template
+// 		- EPIC toolkit description
+// 		- EPIC URL
+// 		- EPIC release tab
+// 		- Quick Start
+// TODO: Fix code for --strict
+// TODO: Check everything once again!
 
 func main() {
 	cmd.Run()

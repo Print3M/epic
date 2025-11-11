@@ -3,7 +3,7 @@
 > [!WARNING]
 > **Beta Testing Stage** – This repository is currently in beta. Expect bugs, incomplete features, and breaking changes. Use at your own risk.
 
-EPIC (*Extensible Position Independent Code*) – PIC shellcode development and building framework designed for developer experience, predictability, and modularity. *Write code, EPIC will take care of the rest!*
+EPIC (*Extensible Position Independent Code*) – PIC shellcode development and building toolkit designed for developer experience, predictability, and modularity. *Write code, EPIC will take care of the rest!*
 
 ![EPIC flow chart](_img/img-1.jpg)
 
@@ -43,7 +43,7 @@ epic init project/
 
 # 3. Compile PIC code
 mkdir output/
-epic pic-compile project/ -o output/ -m hello
+epic pic-compile project/ -o output/
 
 # 4. Link PIC code into standalone payload.bin
 epic pic-link output/ -o output/ -m hello
@@ -119,6 +119,7 @@ Compiles your project into a standard non-PIC executable (called a "monolith" in
 Flags:
 
 - `-o / --output <path>` [required] - Output path for the monolith executable.
+- `--gcc <string>` – Specify additional flags for GCC compilation (e.g. `--gcc '-DDEBUG -DMAX_ITEMS=12'`)
 
 ### Global flags
 
@@ -130,6 +131,7 @@ The following optional flags can be used with any command:
 - `--mingw-w64-objcopy <path>` – Specify path to MinGW-w64 objcopy.
 - `--no-banner` - Disable EPIC banner.
 - `--no-color` - Disable colored output.
+- `--version / -v` – Show EPIC version.
 
 ---
 
@@ -365,7 +367,7 @@ To work around this, I use the MinGW-w64 toolchain (`gcc`) with a custom linker 
 
 ### Do I have to manually align the stack before calling Windows API?
 
-No, MinGW handles stack alignment automatically. However, you must mark every Windows API function with the `WINAPI` macro.
+No, MinGW handles stack alignment and required calling convention automatically. For x86_64 you can even omit the default `WINAPI` macro before the WinAPI function header. It’s harmless to include but not required for correctness.
 
 ### Why is the entry point called `__main_pic` and not simply `main()`?
 

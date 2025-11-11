@@ -11,6 +11,7 @@ import (
 type MonolithCompiler struct {
 	ProjectPath string
 	OutputPath  string
+	GccFlags    []string
 }
 
 func (mc *MonolithCompiler) ValidateProjectPath() error {
@@ -72,6 +73,11 @@ func (mc *MonolithCompiler) Run() {
 		"-I", filepath.Join(mc.ProjectPath, "include"),
 		"-I", mc.ProjectPath,
 	}
+
+	if len(mc.GccFlags) > 0 {
+		params = append(params, mc.GccFlags...)
+	}
+
 	params = append(params, sourceFiles...)
 
 	output := utils.MingwGcc(params...)
