@@ -55,12 +55,13 @@ func MingwLd(params ...string) string {
 		ld = "x86_64-w64-mingw32-ld"
 
 		if IsWindows() {
-			ld += ".exe"
+			ld = "ld.exe"
 		}
 	}
 
 	if !IsProgramAvailable(ld) {
-		cli.LogErrf("Mingw-w64 ld linker not found: %s\n", ld)
+		cli.LogErrf("Mingw-w64 ld linker not found: %s", ld)
+		cli.LogErrf("Specify path to Mingw-w64 ld: `--mingw-w64-ld <path>`")
 		os.Exit(1)
 	}
 
@@ -75,12 +76,13 @@ func MingwGcc(params ...string) string {
 		gcc = "x86_64-w64-mingw32-gcc"
 
 		if IsWindows() {
-			gcc += ".exe"
+			gcc = "gcc.exe"
 		}
 	}
 
 	if !IsProgramAvailable(gcc) {
 		cli.LogErrf("Mingw-w64 GCC compiler not found: %s", gcc)
+		cli.LogErrf("Specify path to Mingw-w64 GCC: `--mingw-w64-gcc <path>`")
 		os.Exit(1)
 	}
 
@@ -95,12 +97,13 @@ func MingwObjcopy(params ...string) string {
 		objcopy = "x86_64-w64-mingw32-objcopy"
 
 		if IsWindows() {
-			objcopy += ".exe"
+			objcopy = "objcopy.exe"
 		}
 	}
 
 	if !IsProgramAvailable(objcopy) {
-		cli.LogErrf("Mingw-w64 objcopy tool not found: %s\n", objcopy)
+		cli.LogErrf("Mingw-w64 objcopy tool not found: %s", objcopy)
+		cli.LogErrf("Specify path to Mingw-w64 objcopy: `--mingw-w64-objcopy <path>`")
 		os.Exit(1)
 	}
 

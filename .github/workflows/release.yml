@@ -47,7 +47,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh release delete 1.0.1 --cleanup-tag --yes || echo "No release or tag found for 1.0.1"
+        gh release delete 1.0.2 --cleanup-tag --yes || echo "No release or tag found for 1.0.2"
     
     - name: Create Release
       id: create_release
@@ -55,10 +55,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: 1.0.1
-        release_name: EPIC 1.0.1
+        tag_name: 1.0.2
+        release_name: EPIC 1.0.2
         body: |
-          - Wrong `pic-link` CLI output information fixed.
+          - Windows build (MSYS2) support fixed.
+          - Better error message when required command is not found.
         draft: false          
         prerelease: false
 
